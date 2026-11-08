@@ -1,6 +1,7 @@
 package metropolia.myapplication
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,6 +18,7 @@ enum class AppScreen(val title: StringResource) {
 
 
 @Composable
+@Preview
 fun QubeApp(
     navcontroller: NavHostController = rememberNavController()
 ) {
