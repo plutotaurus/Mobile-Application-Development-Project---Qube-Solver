@@ -14,7 +14,7 @@ dependencies {
     implementation(project(":shared"))
 
     implementation(libs.androidx.activity.compose)
-
+    implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0-beta03")
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
 }
