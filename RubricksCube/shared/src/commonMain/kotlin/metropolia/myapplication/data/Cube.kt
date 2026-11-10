@@ -3,7 +3,7 @@ package metropolia.myapplication.data
 import androidx.compose.ui.graphics.Color
 import metropolia.myapplication.renderingCube.Vector3i
 
-enum class CubeColor(color: Color) {
+enum class CubeColor(val color: Color) {
     WHITE (Color.White),
     YELLOW (Color(0xFFFFD500)),
     RED (Color(0xFFE53935)),
@@ -30,4 +30,39 @@ data class Cubelet(
 
 data class Cube(
     val cubelets: List<Cubelet>
-)
+){
+    companion object {
+        fun solved(): Cube {
+            val pieces = mutableListOf<Cubelet>()
+
+            for (x in -1..1) {
+                for (y in -1..1) {
+                    for (z in -1..1) {
+
+                        if (x == 0 && y == 0 && z == 0) continue
+
+                        val stickers = mutableMapOf<Face, CubeColor>()
+
+                        if (x == 1) stickers[Face.RIGHT] = CubeColor.BLUE
+                        if (x == -1) stickers[Face.LEFT] = CubeColor.GREEN
+
+                    if (y == 1) stickers[Face.TOP] = CubeColor.WHITE
+                    if (y == -1) stickers[Face.BOTTOM] = CubeColor.YELLOW
+
+                    if (z == 1) stickers[Face.FRONT] = CubeColor.RED
+                    if (z == -1) stickers[Face.BACK] = CubeColor.ORANGE
+
+                    pieces.add(
+                        Cubelet(
+                            position = Vector3i(x, y, z),
+                            stickers = stickers
+                        )
+                    )
+                }
+            }
+        }
+
+        return Cube(pieces)
+    }
+    }
+}

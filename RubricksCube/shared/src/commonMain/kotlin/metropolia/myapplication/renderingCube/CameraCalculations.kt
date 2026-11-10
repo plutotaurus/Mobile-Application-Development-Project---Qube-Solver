@@ -54,7 +54,7 @@ fun project3D(
 
     val depth = cameraDistance - point.z
 
-    val scale = min(width, height) * 0.2f
+    val scale = min(width, height) * 0.25f
     val perspective = focalLength / depth
 
     return Offset(

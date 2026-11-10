@@ -97,8 +97,8 @@ fun getFaceVertices(
     val y = position.y.toFloat()
     val z = position.z.toFloat()
 
-    val half = 0.46f
-    val inset = 0.40f
+    val half = 0.49f
+    val inset = 0.46f
 
     val plane = when (face.axis) {
         0 -> x + face.sign * half

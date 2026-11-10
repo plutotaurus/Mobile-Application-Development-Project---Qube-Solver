@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import metropolia.myapplication.renderingCube.CubeRendering
 
 
 @Composable
@@ -34,5 +35,7 @@ fun MainMenuScreen(
         MainNavButtons(
             onNavigateToCamera = onNavigateToCamera
         )
+
+        CubeRendering()
     }
 }
