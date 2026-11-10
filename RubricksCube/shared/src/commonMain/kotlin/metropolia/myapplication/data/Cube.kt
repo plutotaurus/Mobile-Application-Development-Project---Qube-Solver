@@ -1,15 +1,17 @@
 package metropolia.myapplication.data
 
+import androidx.compose.ui.graphics.Color
 import metropolia.myapplication.renderingCube.Vector3i
 
-enum class CubeColor {
-    WHITE,
-    YELLOW,
-    RED,
-    ORANGE,
-    BLUE,
-    GREEN
+enum class CubeColor(color: Color) {
+    WHITE (Color.White),
+    YELLOW (Color(0xFFFFD500)),
+    RED (Color(0xFFE53935)),
+    ORANGE (Color(0xFFFF8F00)),
+    BLUE (Color(0xFF303F9F)),
+    GREEN(Color(0xFF2E9D50))
 }
+
 
 enum class Face(val axis: Int, val sign: Int) {
     RIGHT(0, 1),
