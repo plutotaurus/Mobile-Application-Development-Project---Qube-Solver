@@ -3,6 +3,7 @@ package metropolia.myapplication
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,41 +39,31 @@ import platform.UIKit.UIView
 @Composable
 actual fun CameraView() {
     // iOS-specific camera view implementation
-    val device = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo).firstOrNull { device ->
-        (device as AVCaptureDevice).position == AVCaptureDevicePositionBack
-    }!! as AVCaptureDevice
+    val resources = remember { CameraResources() }
+    val session = resources.session
+    val previewLayer = resources.previewLayer
 
-    val input = AVCaptureDeviceInput.deviceInputWithDevice(device, null) as AVCaptureDeviceInput
+    DisposableEffect(session) {
+        session.startRunning()
 
-    val output = AVCaptureStillImageOutput()
-    output.outputSettings = mapOf(AVVideoCodecKey to AVVideoCodecJPEG)
-
-    val session = AVCaptureSession()
-
-    session.sessionPreset = AVCaptureSessionPresetPhoto
-
-    session.addInput(input)
-    session.addOutput(output)
-
-    val cameraPreviewLayer = remember { AVCaptureVideoPreviewLayer(session = session) }
+        onDispose {
+            session.stopRunning()
+        }
+    }
 
     UIKitView(
         modifier = Modifier.fillMaxSize(),
-        background = Color.Black,
         factory = {
-            val container = UIView()
-            container.layer.addSublayer(cameraPreviewLayer)
-            cameraPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
-            session.startRunning()
-            container
+            UIView().also { container ->
+                container.layer.addSublayer(previewLayer)
+                previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+            }
         },
-        onResize = { container: UIView, rect: CValue<CGRect> ->
-            CATransaction.begin()
-            CATransaction.setValue(true, kCATransactionDisableActions)
+        onResize = { container, rect ->
             container.layer.setFrame(rect)
-            cameraPreviewLayer.setFrame(rect)
-            CATransaction.commit()
-        })
+            previewLayer.setFrame(rect)
+        }
+    )
 }
 
 @Composable
@@ -95,8 +86,31 @@ actual fun CameraPermissionGate(content: @Composable () -> Unit) {
     }
 
     if (granted) {
-        CameraView()
+        content()
     } else {
         Text("Camera permission is required")
+    }
+}
+
+private class CameraResources {
+    val session: AVCaptureSession  = AVCaptureSession()
+
+    private val device =
+        AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo)
+            .firstOrNull { (it as AVCaptureDevice).position == AVCaptureDevicePositionBack }
+                as? AVCaptureDevice
+            ?: error("No back camera available")
+
+    @OptIn(ExperimentalForeignApi::class)
+    private val input =
+        AVCaptureDeviceInput.deviceInputWithDevice(device, null)
+                as? AVCaptureDeviceInput
+            ?: error("Could not create camera input")
+
+    val previewLayer = AVCaptureVideoPreviewLayer(session = session)
+
+    init {
+        session.sessionPreset = AVCaptureSessionPresetPhoto
+        session.addInput(input)
     }
 }
