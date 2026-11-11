@@ -1,8 +1,13 @@
 package metropolia.myapplication
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.interop.UIKitView
@@ -17,8 +22,12 @@ import platform.AVFoundation.AVCaptureStillImageOutput
 import platform.AVFoundation.AVCaptureVideoPreviewLayer
 import platform.AVFoundation.AVLayerVideoGravityResizeAspectFill
 import platform.AVFoundation.AVMediaTypeVideo
+import platform.AVFoundation.AVAuthorizationStatusAuthorized
+import platform.AVFoundation.AVAuthorizationStatusNotDetermined
 import platform.AVFoundation.AVVideoCodecJPEG
 import platform.AVFoundation.AVVideoCodecKey
+import platform.AVFoundation.authorizationStatusForMediaType
+import platform.AVFoundation.requestAccessForMediaType
 import platform.AVFoundation.position
 import platform.CoreGraphics.CGRect
 import platform.QuartzCore.CATransaction
@@ -68,6 +77,26 @@ actual fun CameraView() {
 
 @Composable
 actual fun CameraPermissionGate(content: @Composable () -> Unit) {
-    // iOS-specific camera permission handling
-    CameraView()
+    var granted by remember {
+        mutableStateOf(
+            AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo) ==
+                AVAuthorizationStatusAuthorized
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        if (AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo) ==
+            AVAuthorizationStatusNotDetermined
+        ) {
+            AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) { isGranted ->
+                granted = isGranted
+            }
+        }
+    }
+
+    if (granted) {
+        CameraView()
+    } else {
+        Text("Camera permission is required")
+    }
 }
