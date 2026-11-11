@@ -21,6 +21,9 @@ fun CameraScreen(
             .padding(24.dp)
     ) {
         Text("Camera Screen")
+        CameraPermissionGate {
+            CameraView()
+        }
         Button(
             onClick = onNavigateBack
         ) {
@@ -28,3 +31,9 @@ fun CameraScreen(
         }
     }
 }
+
+@Composable
+expect fun CameraView()
+
+@Composable
+expect fun CameraPermissionGate(content: @Composable () -> Unit)
