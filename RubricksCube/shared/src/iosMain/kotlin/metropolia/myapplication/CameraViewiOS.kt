@@ -1,6 +1,7 @@
 package metropolia.myapplication
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -10,35 +11,54 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.interop.UIKitView
-import kotlinx.cinterop.CValue
+import androidx.compose.ui.unit.dp
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.readValue
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDeviceInput
 import platform.AVFoundation.AVCaptureDevicePositionBack
 import platform.AVFoundation.AVCaptureSession
 import platform.AVFoundation.AVCaptureSessionPresetPhoto
-import platform.AVFoundation.AVCaptureStillImageOutput
 import platform.AVFoundation.AVCaptureVideoPreviewLayer
 import platform.AVFoundation.AVLayerVideoGravityResizeAspectFill
 import platform.AVFoundation.AVMediaTypeVideo
 import platform.AVFoundation.AVAuthorizationStatusAuthorized
 import platform.AVFoundation.AVAuthorizationStatusNotDetermined
-import platform.AVFoundation.AVVideoCodecJPEG
-import platform.AVFoundation.AVVideoCodecKey
+import platform.AVFoundation.AVPlayer
+import platform.AVFoundation.AVPlayerItem
+import platform.AVFoundation.AVPlayerItemDidPlayToEndTimeNotification
+import platform.AVFoundation.AVPlayerLayer
+import platform.AVFoundation.AVPlayerLooper
+import platform.AVFoundation.AVQueuePlayer
 import platform.AVFoundation.authorizationStatusForMediaType
+import platform.AVFoundation.duration
+import platform.AVFoundation.play
 import platform.AVFoundation.requestAccessForMediaType
 import platform.AVFoundation.position
-import platform.CoreGraphics.CGRect
-import platform.QuartzCore.CATransaction
-import platform.QuartzCore.kCATransactionDisableActions
+import platform.AVFoundation.seekToTime
+import platform.CoreGraphics.CGRectZero
+import platform.CoreMedia.CMTimeRange
+import platform.CoreMedia.CMTimeRangeMake
+import platform.CoreMedia.kCMTimeRangeInvalid
+import platform.CoreMedia.kCMTimeZero
+import platform.Foundation.NSBundle
+import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSProcessInfo
 import platform.UIKit.UIView
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
 actual fun CameraView() {
     // iOS-specific camera view implementation
+
+    val isSimulator = NSProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] != null
+
+    if (isSimulator) {
+        MockCameraPreview()
+        return
+    }
+
     val resources = remember { CameraResources() }
     val session = resources.session
     val previewLayer = resources.previewLayer
@@ -54,14 +74,17 @@ actual fun CameraView() {
     UIKitView(
         modifier = Modifier.fillMaxSize(),
         factory = {
-            UIView().also { container ->
-                container.layer.addSublayer(previewLayer)
-                previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+            object : UIView(CGRectZero.readValue()) {
+                init {
+                    layer.addSublayer(previewLayer)
+                    resources.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                }
+
+                override fun layoutSubviews() {
+                    super.layoutSubviews()
+                    previewLayer.setFrame(bounds)
+                }
             }
-        },
-        onResize = { container, rect ->
-            container.layer.setFrame(rect)
-            previewLayer.setFrame(rect)
         }
     )
 }
@@ -113,4 +136,45 @@ private class CameraResources {
         session.sessionPreset = AVCaptureSessionPresetPhoto
         session.addInput(input)
     }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+@Composable
+fun MockCameraPreview() {
+    val item = AVPlayerItem(
+        uRL = NSBundle.mainBundle.URLForResource("mock-camera", "mp4")!!
+    )
+
+    UIKitView(
+        modifier = Modifier.fillMaxSize(),
+        factory = {
+            object : UIView(frame = CGRectZero.readValue()) {
+                val player = AVPlayer(item)
+
+                val observer = NSNotificationCenter.defaultCenter.addObserverForName(
+                    name = AVPlayerItemDidPlayToEndTimeNotification,
+                    `object` = item,
+                    queue = null
+                ) {
+                    player.seekToTime(kCMTimeZero.readValue())
+                    player.play()
+                }
+                private val playerLayer =
+                    AVPlayerLayer.playerLayerWithPlayer(player).apply {
+                        videoGravity = AVLayerVideoGravityResizeAspectFill
+                    }
+
+                init {
+                    layer.addSublayer(playerLayer)
+                    player.play()
+                }
+
+                override fun layoutSubviews() {
+                    super.layoutSubviews()
+                    playerLayer.setFrame(bounds)
+                }
+            }
+        }
+    )
+    return
 }
