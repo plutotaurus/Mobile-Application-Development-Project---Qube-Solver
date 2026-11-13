@@ -8,15 +8,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import metropolia.myapplication.data.Cube
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun AlgorithmComponent(algorithmName: String,
-                      algorithm: String,
-                      imageRes: DrawableResource,
-                      modifier: Modifier = Modifier
+fun AlgorithmComponent(
+    algorithmName: String,
+    algorithm: String,
+    cube: Cube, // Pass the cube state or resulting pattern here
+    modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -32,20 +36,17 @@ fun AlgorithmComponent(algorithmName: String,
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
-            // Cube image
+            // 3D Cube Thumbnail Card
             Card(
-                modifier = Modifier.size(180.dp),
+                modifier = Modifier.size(120.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.LightGray
                 ),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Image(
-                    painter = painterResource(imageRes),
-                    contentDescription = algorithmName,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp)
+                CubeThumbnail(
+                    cube = cube,
+                    modifier = Modifier.fillMaxSize().padding(12.dp)
                 )
             }
 
@@ -58,20 +59,20 @@ fun AlgorithmComponent(algorithmName: String,
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp)
+                    modifier = Modifier.padding(12.dp)
                 ) {
                     Text(
                         text = algorithmName,
                         style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
                     )
-
-                    Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
                         text = algorithm,
                         style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
                     )
                 }
             }
@@ -79,3 +80,12 @@ fun AlgorithmComponent(algorithmName: String,
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun AlgorithmComponentPreview() {
+    AlgorithmComponent(
+        algorithmName = "T-Perm",
+        algorithm = "R U R' U' D R2 U' R U' R' U R2 D'",
+        cube = Cube.solved() // or Cube.solved().applyMoves(...)
+    )
+}
