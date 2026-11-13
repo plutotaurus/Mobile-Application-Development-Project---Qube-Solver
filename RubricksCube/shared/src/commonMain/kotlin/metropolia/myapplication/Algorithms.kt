@@ -21,6 +21,11 @@ fun AlgorithmsScreen(
             .padding(24.dp)
     ) {
         Text("Algorithms Screen")
+//        AlgorithmComponent(
+//            algorithmName = "T-Perm",
+//            algorithm = "R U R' U' D R2 U' R U' R' U R2 D'",
+//            imageRes = R.drawable.t_perm
+//        )
         Button(
             onClick = onNavigateBack
         ) {
