@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import org.jetbrains.compose.resources.StringResource
 import rubrickscube.shared.generated.resources.Res
 import rubrickscube.shared.generated.resources.algorithms
+import rubrickscube.shared.generated.resources.badges
 import rubrickscube.shared.generated.resources.camera
 import rubrickscube.shared.generated.resources.main_menu
 import rubrickscube.shared.generated.resources.profile
@@ -21,7 +22,8 @@ enum class AppScreen(val title: StringResource) {
     Racing(title = Res.string.racing),
     Timer(title = Res.string.timer),
     Algorithms(title = Res.string.algorithms),
-    Profile(title = Res.string.profile)
+    Profile(title = Res.string.profile),
+    Badges(title = Res.string.badges)
 }
 
 
@@ -61,7 +63,13 @@ fun QubeApp(
         }
         composable(AppScreen.Profile.name){
             ProfileScreen (
-                onNavigateBack = {navcontroller.popBackStack()}
+                onNavigateBack = {navcontroller.popBackStack()},
+                onNavigateToBadges = { navcontroller.navigate(AppScreen.Badges.name) }
+            )
+        }
+        composable(AppScreen.Badges.name) {
+            BadgesScreen(
+                onNavigateBack = { navcontroller.popBackStack() }
             )
         }
         composable(AppScreen.Racing.name){
