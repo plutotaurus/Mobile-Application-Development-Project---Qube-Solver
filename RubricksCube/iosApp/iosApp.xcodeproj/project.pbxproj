@@ -26,11 +26,19 @@
 			exceptions = (
 				38787326A2B5729DF7BCF6EB /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
 			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = iosApp;
 			sourceTree = "<group>";
 		};
 		CD605A9C3BD53495AB4C3C44 /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = Configuration;
 			sourceTree = "<group>";
 		};
