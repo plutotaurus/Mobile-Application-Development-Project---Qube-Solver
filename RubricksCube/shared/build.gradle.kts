@@ -38,6 +38,7 @@ kotlin {
     }
     sourceSets {
         androidMain.dependencies {
+            implementation("org.worldcubeassociation.tnoodle:lib-scrambles:0.20.0")
             implementation(libs.androidx.camera.lifecycle)
             implementation(libs.androidx.camera.view)
             implementation(libs.compose.uiToolingPreview)
