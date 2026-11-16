@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import metropolia.myapplication.data.SequenceMove
 import metropolia.myapplication.data.parseMoveSequence
 import metropolia.myapplication.renderingCube.Camera
 import metropolia.myapplication.renderingCube.renderCube
@@ -34,7 +35,7 @@ fun AnimatedCubeRendering() {
 
     val scope = rememberCoroutineScope()
 
-    val moveSequence = "R U R' U'"
+    val moveSequence = "R U R' x F y R z"
 
     var isPlayingSequence by remember {
         mutableStateOf(false)
@@ -166,9 +167,19 @@ fun AnimatedCubeRendering() {
                                 scope.launch {
                                     isPlayingSequence = true
                                     try {
-                                        for ((index, move) in moves.withIndex()) {
+                                        for ((index, sequenceMove) in moves.withIndex()) {
+
                                             currentMoveIndex = index
-                                            animator.performMove(move)
+
+                                            when (sequenceMove) {
+                                                is SequenceMove.FaceTurn -> {
+                                                    animator.performMove(sequenceMove.move)
+                                                }
+
+                                                is SequenceMove.CubeTurn -> {
+                                                    animator.rotateCube(sequenceMove.direction)
+                                                }
+                                            }
                                         }
                                     } finally {
                                         currentMoveIndex = -1

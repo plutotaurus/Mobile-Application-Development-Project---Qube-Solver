@@ -8,6 +8,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import metropolia.myapplication.data.CubeOrientation
+import metropolia.myapplication.data.RotateCube
 
 class CubeAnimator(
     initialCube: Cube = Cube.solved()
@@ -22,6 +24,12 @@ class CubeAnimator(
         private set
 
     val rotation = Animatable(0f)
+
+    fun rotateCube(direction: RotateCube) {
+        if (isAnimating) return
+
+        cube = CubeOrientation.rotate(cube, direction)
+    }
 
     suspend fun performMove(move: Move) {
         performMoves(listOf(move))

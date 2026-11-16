@@ -35,7 +35,7 @@ enum class Move(
     B2(2, -1, 180f)
 }
 
-fun parseMoveSequence(input: String): List<Move>? {
+fun parseMoveSequence(input: String): List<SequenceMove>? {
 
     val moveMap = mapOf(
         "U" to Move.U,
@@ -63,24 +63,44 @@ fun parseMoveSequence(input: String): List<Move>? {
         "B2" to Move.B2
     )
 
-    val tokens = input.trim().split(Regex("\\s+"))
+    val rotationMap = mapOf(
+        "x" to RotateCube.X,
+        "x'" to RotateCube.X_PRIME,
+        "y" to RotateCube.Y,
+        "y'" to RotateCube.Y_PRIME,
+        "z" to RotateCube.Z,
+        "z'" to RotateCube.Z_PRIME
+    )
 
     if (input.isBlank()) return null
 
-    val moves = mutableListOf<Move>()
+    val result = mutableListOf<SequenceMove>()
 
-    for (token in tokens) {
-        val move = moveMap[token] ?: return null
-        moves.add(move)
+    for (token in input.trim().split(Regex("\\s+"))) {
+        when {
+            token in moveMap -> {
+                result.add(SequenceMove.FaceTurn(moveMap[token]!!))
+            }
+
+            token in rotationMap -> {
+                result.add(SequenceMove.CubeTurn(rotationMap[token]!!))
+            }
+
+            else -> return null
+        }
     }
 
-    return moves
+    return result
 }
 
 
 enum class RotateCube {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT
+    X, X_PRIME,
+    Y, Y_PRIME,
+    Z, Z_PRIME
+}
+
+sealed class SequenceMove {
+    data class FaceTurn(val move: Move) : SequenceMove()
+    data class CubeTurn(val direction: RotateCube) : SequenceMove()
 }
