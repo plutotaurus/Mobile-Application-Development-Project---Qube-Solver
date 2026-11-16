@@ -3,6 +3,7 @@ package metropolia.myapplication.renderingCube.animaton
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,11 +17,15 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import metropolia.myapplication.data.SequenceMove
 import metropolia.myapplication.data.parseMoveSequence
 import metropolia.myapplication.renderingCube.Camera
 import metropolia.myapplication.renderingCube.renderCube
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun AnimatedCubeRendering() {
@@ -35,7 +40,9 @@ fun AnimatedCubeRendering() {
 
     val scope = rememberCoroutineScope()
 
-    val moveSequence = "R U R' x F y R z"
+    val moveSequence = "x y z"
+
+    var playbackJob by remember { mutableStateOf<Job?>(null) }
 
     var isPlayingSequence by remember {
         mutableStateOf(false)
@@ -105,8 +112,6 @@ fun AnimatedCubeRendering() {
 
                 Spacer(Modifier.height(8.dp))
 
-                Text("Cube controls")
-
                 Spacer(Modifier.height(8.dp))
 
                 val moveTokens = moveSequence
@@ -120,7 +125,9 @@ fun AnimatedCubeRendering() {
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+
                     moveTokens.forEachIndexed { index, move ->
+
                         Box(
                             modifier = Modifier
                                 .background(
@@ -131,6 +138,40 @@ fun AnimatedCubeRendering() {
                                     },
                                     shape = RoundedCornerShape(8.dp)
                                 )
+                                .clickable(enabled = !isPlayingSequence) {
+                                    playbackJob = scope.launch {
+                                        val moves = parseMoveSequence(moveSequence)
+
+                                        if (moves != null) {
+                                            isPlayingSequence = true
+
+                                            try {
+                                                animator.reset()
+
+                                                yawState.floatValue = 0.65f
+                                                pitchState.floatValue = 0.5708f
+                                                currentMoveIndex = -1
+
+                                                for (i in 0..index) {
+                                                    currentMoveIndex = i
+
+                                                    when (val selectedMove = moves[i]) {
+                                                        is SequenceMove.FaceTurn -> {
+                                                            animator.performMove(selectedMove.move)
+                                                        }
+
+                                                        is SequenceMove.CubeTurn -> {
+                                                            animator.rotateCube(selectedMove.direction)
+                                                        }
+                                                    }
+                                                }
+                                            } finally {
+                                                isPlayingSequence = false
+                                                playbackJob = null
+                                            }
+                                        }
+                                    }
+                                }
                                 .padding(10.dp)
                         ) {
                             Text(
@@ -157,40 +198,49 @@ fun AnimatedCubeRendering() {
                 ) {
                     Button(
                         onClick = {
-                            val moves = parseMoveSequence(moveSequence)
+                            if (playbackJob?.isActive == true) return@Button
 
-                            if (moves == null) {
-                                sequenceError = "Invalid move sequence"
-                            } else {
-                                sequenceError = null
+                            val moves = parseMoveSequence(moveSequence) ?: return@Button
 
-                                scope.launch {
-                                    isPlayingSequence = true
-                                    try {
-                                        for ((index, sequenceMove) in moves.withIndex()) {
+                            playbackJob = scope.launch {
+                                isPlayingSequence = true
 
-                                            currentMoveIndex = index
+                                try {
+                                    for ((index, sequenceMove) in moves.withIndex()) {
+                                        currentMoveIndex = index
 
-                                            when (sequenceMove) {
-                                                is SequenceMove.FaceTurn -> {
-                                                    animator.performMove(sequenceMove.move)
-                                                }
+                                        when (sequenceMove) {
+                                            is SequenceMove.FaceTurn -> {
+                                                animator.performMove(sequenceMove.move)
+                                            }
 
-                                                is SequenceMove.CubeTurn -> {
-                                                    animator.rotateCube(sequenceMove.direction)
-                                                }
+                                            is SequenceMove.CubeTurn -> {
+                                                animator.rotateCube(sequenceMove.direction)
+                                                delay(500.milliseconds)
                                             }
                                         }
-                                    } finally {
-                                        currentMoveIndex = -1
-                                        isPlayingSequence = false
                                     }
+                                } finally {
+                                    isPlayingSequence = false
+                                    playbackJob = null
                                 }
                             }
                         },
                         enabled = !isPlayingSequence
                     ) {
                         Text("Play")
+                    }
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                playbackJob?.cancelAndJoin()
+                                playbackJob = null
+                                isPlayingSequence = false
+                            }
+                        },
+                        enabled = isPlayingSequence
+                    ) {
+                        Text("Stop")
                     }
 
                     Button(

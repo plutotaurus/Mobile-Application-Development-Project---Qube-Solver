@@ -8,6 +8,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import metropolia.myapplication.data.CubeOrientation
 import metropolia.myapplication.data.RotateCube
 
@@ -45,7 +47,6 @@ class CubeAnimator(
             for (move in moves) {
 
                 activeMove = move
-
                 rotation.snapTo(0f)
 
                 // Animate the selected face
@@ -67,18 +68,19 @@ class CubeAnimator(
                     move = move
                 )
 
-                // Reset the temporary rotation
                 rotation.snapTo(0f)
-
                 activeMove = null
             }
-        } finally {
-            activeMove = null
-            isAnimating = false
-            rotation.snapTo(0f)
+        }finally {
+                withContext(NonCancellable) {
+                    rotation.stop()
+                    rotation.snapTo(0f)
+                    activeMove = null
+                    isAnimating = false
+                }
+
         }
     }
-
     fun reset() {
         if (!isAnimating) {
             cube = Cube.solved()
