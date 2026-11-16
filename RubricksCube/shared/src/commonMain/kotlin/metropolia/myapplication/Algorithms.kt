@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import metropolia.myapplication.data.Cube
+import metropolia.myapplication.renderingCube.animaton.AnimatedCubeRendering
 
 @Composable
 fun AlgorithmsScreen(
@@ -22,15 +23,17 @@ fun AlgorithmsScreen(
             .padding(24.dp)
     ) {
         Text("Algorithms Screen")
-        AlgorithmComponent(
+        /*AlgorithmComponent(
             algorithmName = "T-Perm",
             algorithm = "R U R' U' D R2 U' R U' R' U R2 D'",
             cube = Cube.solved() // or Cube.solved().applyMoves(...)
-        )
+        )*/
         Button(
             onClick = onNavigateBack
         ) {
             Text("Back")
         }
+
+        AnimatedCubeRendering()
     }
 }
