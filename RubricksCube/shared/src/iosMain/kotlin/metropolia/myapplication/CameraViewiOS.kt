@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.interop.UIKitView
 import androidx.compose.ui.unit.dp
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -49,7 +50,11 @@ import platform.UIKit.UIView
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
-actual fun CameraView() {
+actual fun CameraView(
+    captureRequested: Boolean,
+    onCaptureHandled: () -> Unit,
+    onPhotoCaptured: (ImageBitmap) -> Unit
+) {
     // iOS-specific camera view implementation
 
     val isSimulator = NSProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] != null
@@ -87,6 +92,12 @@ actual fun CameraView() {
             }
         }
     )
+
+    LaunchedEffect(captureRequested) {
+        if (captureRequested) {
+            onCaptureHandled()
+        }
+    }
 }
 
 @Composable
