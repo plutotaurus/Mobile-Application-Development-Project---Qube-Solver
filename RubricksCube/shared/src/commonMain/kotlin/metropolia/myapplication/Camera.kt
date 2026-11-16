@@ -1,5 +1,6 @@
 package metropolia.myapplication
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,8 +22,13 @@ fun CameraScreen(
             .padding(24.dp)
     ) {
         Text("Camera Screen")
+        Box(
+            modifier = Modifier
+                .weight(1f)
+        ) {
         CameraPermissionGate {
             CameraView()
+        }
         }
         Button(
             onClick = onNavigateBack

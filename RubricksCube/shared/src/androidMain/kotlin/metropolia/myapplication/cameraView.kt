@@ -70,7 +70,7 @@ actual fun CameraPermissionGate(content: @Composable () -> Unit) {
     }
 
     if (granted) {
-        CameraView()
+        content()
     } else {
         Text("Camera permission is required")
     }
