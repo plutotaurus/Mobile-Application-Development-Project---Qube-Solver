@@ -14,7 +14,7 @@ import metropolia.myapplication.data.CubeOrientation
 import metropolia.myapplication.data.RotateCube
 
 class CubeAnimator(
-    initialCube: Cube = Cube.solved()
+    private val initialCube: Cube = Cube.solved()
 ) {
     var cube by mutableStateOf(initialCube)
         private set
@@ -83,7 +83,7 @@ class CubeAnimator(
     }
     fun reset() {
         if (!isAnimating) {
-            cube = Cube.solved()
+            cube = initialCube
         }
     }
 }

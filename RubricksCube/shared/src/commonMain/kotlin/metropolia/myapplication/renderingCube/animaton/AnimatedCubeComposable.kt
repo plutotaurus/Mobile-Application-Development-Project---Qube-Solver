@@ -1,4 +1,3 @@
-
 package metropolia.myapplication.renderingCube.animaton
 
 import androidx.compose.foundation.Canvas
@@ -21,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import metropolia.myapplication.data.Cube
 import metropolia.myapplication.data.SequenceMove
 import metropolia.myapplication.data.parseMoveSequence
 import metropolia.myapplication.renderingCube.Camera
@@ -28,10 +28,14 @@ import metropolia.myapplication.renderingCube.renderCube
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun AnimatedCubeRendering() {
+fun AnimatedCubeRendering(
+    moveSequence: String = "x y z",
+    onClose: () -> Unit = {},
+    initialCube: Cube = Cube.solved()
+) {
 
-    val animator = remember {
-        CubeAnimator()
+    val animator = remember(initialCube) {
+        CubeAnimator(initialCube)
     }
 
     var currentMoveIndex by remember {
@@ -39,8 +43,6 @@ fun AnimatedCubeRendering() {
     }
 
     val scope = rememberCoroutineScope()
-
-    val moveSequence = "x y z"
 
     var playbackJob by remember { mutableStateOf<Job?>(null) }
 
@@ -76,6 +78,16 @@ fun AnimatedCubeRendering() {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Button(onClick = onClose) {
+                        Text("Back")
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
 
                 Canvas(
                     modifier = Modifier

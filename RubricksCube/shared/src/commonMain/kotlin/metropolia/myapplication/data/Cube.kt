@@ -2,6 +2,7 @@ package metropolia.myapplication.data
 
 import androidx.compose.ui.graphics.Color
 import metropolia.myapplication.renderingCube.Vector3i
+import metropolia.myapplication.renderingCube.animaton.CubeRotation
 
 enum class CubeColor(val color: Color) {
     WHITE (Color.White),
@@ -31,6 +32,24 @@ data class Cubelet(
 data class Cube(
     val cubelets: List<Cubelet>,
 ){
+    /** Returns a new cube after applying the moves in order, without animation. */
+    fun applyMoves(moves: List<Move>): Cube =
+        moves.fold(this) { cube, move -> CubeRotation.applyMove(cube, move) }
+
+    /** Supports standard notation, for example "R U R' U'", including x/y/z rotations. */
+    fun applyMoves(sequence: String): Cube {
+        if (sequence.isBlank()) return this
+        val moves = requireNotNull(parseMoveSequence(sequence)) {
+            "Invalid move sequence: $sequence"
+        }
+        return moves.fold(this) { cube, move ->
+            when (move) {
+                is SequenceMove.FaceTurn -> CubeRotation.applyMove(cube, move.move)
+                is SequenceMove.CubeTurn -> CubeOrientation.rotate(cube, move.direction)
+            }
+        }
+    }
+
     companion object {
         fun solved(): Cube {
             val pieces = mutableListOf<Cubelet>()
