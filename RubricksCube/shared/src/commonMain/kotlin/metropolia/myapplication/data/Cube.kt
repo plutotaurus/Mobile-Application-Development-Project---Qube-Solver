@@ -65,8 +65,8 @@ data class Cube(
                         if (x == 1) stickers[Face.RIGHT] = CubeColor.BLUE
                         if (x == -1) stickers[Face.LEFT] = CubeColor.GREEN
 
-                    if (y == 1) stickers[Face.TOP] = CubeColor.WHITE
-                    if (y == -1) stickers[Face.BOTTOM] = CubeColor.YELLOW
+                    if (y == 1) stickers[Face.TOP] = CubeColor.YELLOW
+                    if (y == -1) stickers[Face.BOTTOM] = CubeColor.WHITE
 
                     if (z == 1) stickers[Face.FRONT] = CubeColor.RED
                     if (z == -1) stickers[Face.BACK] = CubeColor.ORANGE
