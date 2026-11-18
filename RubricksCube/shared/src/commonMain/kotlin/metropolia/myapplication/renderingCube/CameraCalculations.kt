@@ -18,7 +18,8 @@ data class RenderFace(
     val points: List<Offset>,
     val depth: Float,
     val face: Face,
-    val color: CubeColor
+    val color: CubeColor,
+    val position: Vector3i,
 )
 
 fun rotate3D(
@@ -67,7 +68,7 @@ fun renderCube(
     cube: Cube,
     camera:Camera,
     width: Float,
-    height: Float
+    height: Float,
 ): List<RenderFace> {
 
     val result = mutableListOf<RenderFace>()
@@ -106,7 +107,8 @@ fun renderCube(
                     points = projected,
                     depth = depth,
                     face = face,
-                    color = color
+                    color = color,
+                    position = position
                 )
             )
         }

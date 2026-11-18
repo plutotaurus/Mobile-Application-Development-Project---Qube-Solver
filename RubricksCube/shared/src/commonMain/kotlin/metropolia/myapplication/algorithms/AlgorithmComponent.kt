@@ -1,10 +1,11 @@
 package metropolia.myapplication
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -12,14 +13,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import metropolia.myapplication.data.Cube
-import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun AlgorithmComponent(
     algorithmName: String,
     algorithm: String,
-    cube: Cube, // Pass the cube state or resulting pattern here
+    cube: Cube?,
+    onImageClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -36,18 +36,26 @@ fun AlgorithmComponent(
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
-            // 3D Cube Thumbnail Card
+            // 3D Cube Thumbnail Card (clickable to open animation)
             Card(
-                modifier = Modifier.size(120.dp),
+                modifier = Modifier
+                    .size(120.dp)
+                    .clickable(enabled = cube != null, onClick = onImageClick),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.LightGray
                 ),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                CubeThumbnail(
-                    cube = cube,
-                    modifier = Modifier.fillMaxSize().padding(12.dp)
-                )
+                if (cube != null) {
+                    CubeThumbnail(
+                        cube = cube,
+                        modifier = Modifier.fillMaxSize().padding(12.dp)
+                    )
+                } else {
+                    Box(Modifier.fillMaxSize().padding(12.dp), contentAlignment = Alignment.Center) {
+                        Text("Preview unavailable")
+                    }
+                }
             }
 
             // Algorithm information
@@ -68,6 +76,8 @@ fun AlgorithmComponent(
                         fontSize = 20.sp
                     )
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     Text(
                         text = algorithm,
                         style = MaterialTheme.typography.headlineSmall,
@@ -86,6 +96,7 @@ fun AlgorithmComponentPreview() {
     AlgorithmComponent(
         algorithmName = "T-Perm",
         algorithm = "R U R' U' D R2 U' R U' R' U R2 D'",
-        cube = Cube.solved() // or Cube.solved().applyMoves(...)
+        cube = Cube.solved(),
+        onImageClick = {}
     )
 }

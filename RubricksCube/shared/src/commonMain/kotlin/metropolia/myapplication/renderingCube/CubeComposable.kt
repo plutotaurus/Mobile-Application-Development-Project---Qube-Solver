@@ -1,13 +1,11 @@
 package metropolia.myapplication.renderingCube
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -25,9 +23,22 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import metropolia.myapplication.data.Cube
+import metropolia.myapplication.data.Face
 
 @Composable
 fun CubeRendering() {
+
+    val selectedPosition = remember {
+        mutableStateOf<Vector3i?>(null)
+    }
+
+    val selectedFace = remember {
+        mutableStateOf<Face?>(null)
+    }
+
+    val showColorMenu = remember {
+        mutableStateOf(false)
+    }
 
     val cubeState = remember {
         mutableStateOf(Cube.solved())
@@ -63,6 +74,41 @@ fun CubeRendering() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
+                        .pointerInput(
+                            yawState.floatValue,
+                            pitchState.floatValue,
+                            cubeState.value
+                        ) {
+                            detectTapGestures { tapOffset ->
+
+                                val faces = renderCube(
+                                    cubeState.value,
+                                    Camera(
+                                        yaw = yawState.floatValue,
+                                        pitch = pitchState.floatValue
+                                    ),
+                                    size.width.toFloat(),
+                                    size.height.toFloat()
+                                )
+
+                                val clickedFace = faces
+                                    .asReversed()
+                                    .firstOrNull { face ->
+                                        isPointInsidePolygon(
+                                            tapOffset,
+                                            face.points
+                                        )
+                                    }
+
+                                clickedFace?.let { face ->
+
+                                    selectedPosition.value = face.position
+                                    selectedFace.value = face.face
+
+                                    showColorMenu.value = true
+                                }
+                            }
+                        }
                         .pointerInput(Unit) {
                             detectDragGestures(
                                 onDrag = { change, dragAmount ->
@@ -117,6 +163,18 @@ fun CubeRendering() {
                     }
                 }
 
+                CubeColorMenu(
+                    visible = showColorMenu.value,
+                    onColorSelected = { color ->
+                        changeColor(
+                            color,
+                            selectedPosition,
+                            selectedFace,
+                            showColorMenu,
+                            cubeState
+                        )
+                    }
+                )
 
                 Button(
                     onClick = {

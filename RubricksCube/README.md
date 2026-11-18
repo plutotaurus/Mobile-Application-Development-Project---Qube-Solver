@@ -29,3 +29,47 @@ Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 ---
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+### Solve timer
+
+On the Timer screen, hold the timer pad for at least 500 ms until it turns green,
+then release to start. Touch it again to stop. A new scramble is generated after
+each solve. Completed times and their scrambles are saved locally; the footer
+shows the latest five times and rolling ao5, ao12, and ao100. Each average trims
+5% from each end, rounded up (one result per end for ao5/ao12, five for ao100).
+An unfinished solve is abandoned when the app leaves the foreground.
+
+To generate a 3×3 scramble elsewhere, call the shared suspend API from a coroutine:
+
+```kotlin
+import metropolia.myapplication.timer.generate3x3Scramble
+
+val scramble = generate3x3Scramble()
+val startingCube = Cube.solved().applyMoves(scramble)
+```
+
+Android uses TNoodle-lib's random-state generator and WCA distance filtering,
+with generation on a background dispatcher. The first Gradle sync must download
+`org.worldcubeassociation.tnoodle:lib-scrambles:0.20.0` from Maven Central.
+iOS bundles the MIT-licensed min2phase.js solver and runs it offline in Apple's
+JavaScriptCore on a background dispatcher. It samples random legal states,
+rejects solved/one-move states, and generates an inverse solution. Its solver
+is bundled with Compose resources, so iPhone does not need TNoodle or a network
+connection. See `files/min2phase-LICENSE.txt` for the upstream attribution.
+
+Timer transitions, statistics, formatting, and history serialization are tested
+in `SolveTimerTest`. `ScrambleGeneratorTest` checks Android scrambles against the
+app's notation parser and TNoodle's minimum-distance filter. Run both with:
+
+```sh
+./gradlew :shared:testAndroidHostTest
+```
+
+The bundled iOS scramble scripts can also be checked without Gradle:
+
+```sh
+node scripts/test-ios-scrambler.cjs
+swift scripts/test-ios-scrambler.swift
+```
+
+The Swift check runs the scripts in Apple's JavaScriptCore; both checks generate
+100 scrambles and verify that the resulting states can be solved back to solved.

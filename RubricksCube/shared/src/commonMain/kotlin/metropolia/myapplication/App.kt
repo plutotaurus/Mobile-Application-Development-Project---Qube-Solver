@@ -1,33 +1,37 @@
 package metropolia.myapplication
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Surface
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.painterResource
-
-import rubrickscube.shared.generated.resources.Res
-import rubrickscube.shared.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Text(modifier = Modifier.padding(16.dp), text = " ")
-            QubeApp()
+    // Keep the current light design consistent with the native iOS host.
+    MaterialTheme(colorScheme = lightColorScheme()) {
+        // MaterialTheme supplies colors but doesn't paint a background. Paint the
+        // entire window so transparent screens cannot reveal a dark native view.
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeContentPadding()
+                    .padding(2.dp)
+            ) {
+                QubeApp()
+            }
         }
     }
 }

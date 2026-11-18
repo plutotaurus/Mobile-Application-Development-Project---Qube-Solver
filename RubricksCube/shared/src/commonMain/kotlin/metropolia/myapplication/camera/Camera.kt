@@ -1,5 +1,6 @@
 package metropolia.myapplication
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TimerScreen(
+fun CameraScreen(
     onNavigateBack: () -> Unit
 ) {
     // Camera screen content
@@ -20,7 +21,15 @@ fun TimerScreen(
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        Text("Timer Screen")
+        Text("Camera Screen")
+        Box(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+        CameraPermissionGate {
+            CameraView()
+        }
+        }
         Button(
             onClick = onNavigateBack
         ) {
@@ -28,3 +37,9 @@ fun TimerScreen(
         }
     }
 }
+
+@Composable
+expect fun CameraView()
+
+@Composable
+expect fun CameraPermissionGate(content: @Composable () -> Unit)
