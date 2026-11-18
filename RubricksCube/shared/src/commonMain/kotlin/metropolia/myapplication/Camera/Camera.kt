@@ -1,4 +1,4 @@
-package metropolia.myapplication
+package metropolia.myapplication.Camera
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
@@ -17,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
-import metropolia.myapplication.Camera.DrawCubeViewFinder
-import metropolia.myapplication.Camera.getAverageColor
 
 @Composable
 fun CameraScreen(
