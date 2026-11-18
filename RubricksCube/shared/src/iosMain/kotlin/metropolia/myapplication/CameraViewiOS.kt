@@ -12,12 +12,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.interop.UIKitView
 import androidx.compose.ui.unit.dp
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
+import kotlinx.cinterop.readBytes
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDeviceInput
+import platform.AVFoundation.AVCaptureOutput
+import platform.AVFoundation.AVCapturePhoto
+import platform.AVFoundation.AVCapturePhotoOutput
+import platform.AVFoundation.AVCapturePhotoCaptureDelegateProtocol
+import platform.AVFoundation.AVCapturePhotoSettings
 import platform.AVFoundation.AVCaptureDevicePositionBack
 import platform.AVFoundation.AVCaptureSession
 import platform.AVFoundation.AVCaptureSessionPresetPhoto
@@ -34,6 +41,7 @@ import platform.AVFoundation.AVPlayerLooper
 import platform.AVFoundation.AVQueuePlayer
 import platform.AVFoundation.authorizationStatusForMediaType
 import platform.AVFoundation.duration
+import platform.AVFoundation.fileDataRepresentation
 import platform.AVFoundation.play
 import platform.AVFoundation.requestAccessForMediaType
 import platform.AVFoundation.position
@@ -44,9 +52,11 @@ import platform.CoreMedia.CMTimeRangeMake
 import platform.CoreMedia.kCMTimeRangeInvalid
 import platform.CoreMedia.kCMTimeZero
 import platform.Foundation.NSBundle
+import platform.Foundation.NSError
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSProcessInfo
 import platform.UIKit.UIView
+import platform.darwin.NSObject
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -57,6 +67,8 @@ actual fun CameraView(
 ) {
     // iOS-specific camera view implementation
 
+
+    // check environment to display mockup video
     val isSimulator = NSProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] != null
 
     if (isSimulator) {
@@ -95,7 +107,10 @@ actual fun CameraView(
 
     LaunchedEffect(captureRequested) {
         if (captureRequested) {
-            onCaptureHandled()
+            resources.capturePhoto(
+                onPhotoCaptured = onPhotoCaptured,
+                onCaptureHandled = onCaptureHandled
+            )
         }
     }
 }
@@ -142,10 +157,59 @@ private class CameraResources {
             ?: error("Could not create camera input")
 
     val previewLayer = AVCaptureVideoPreviewLayer(session = session)
+    private val photoOutput = AVCapturePhotoOutput()
 
     init {
         session.sessionPreset = AVCaptureSessionPresetPhoto
         session.addInput(input)
+        check(session.canAddOutput(photoOutput)) {
+            "Could not add photo output to camera session"
+        }
+        session.addOutput(photoOutput)
+    }
+
+    fun capturePhoto(
+        onPhotoCaptured: (ImageBitmap) -> Unit,
+        onCaptureHandled: () -> Unit
+    ) {
+        val settings = AVCapturePhotoSettings.photoSettings()
+        val delegate = PhotoCaptureDelegate(onPhotoCaptured, onCaptureHandled)
+        photoOutput.capturePhotoWithSettings(settings, delegate)
+    }
+}
+
+private class PhotoCaptureDelegate(
+    private val onPhotoCaptured: (ImageBitmap) -> Unit,
+    private val onCaptureHandled: () -> Unit
+) : NSObject(), AVCapturePhotoCaptureDelegateProtocol {
+
+    @OptIn(ExperimentalForeignApi::class)
+    override fun captureOutput(
+        output: AVCapturePhotoOutput,
+        didFinishProcessingPhoto: AVCapturePhoto,
+        error: NSError?
+    ) {
+        if (error != null) {
+            onCaptureHandled()
+            return
+        }
+
+        val photoData = didFinishProcessingPhoto.fileDataRepresentation()
+        if (photoData == null) {
+            onCaptureHandled()
+            return
+        }
+
+        val encodedImage = photoData.bytes?.readBytes(photoData.length.toInt())
+        if (encodedImage == null) {
+            onCaptureHandled()
+            return
+        }
+
+        val imageBitmap = encodedImage.decodeToImageBitmap()
+
+        onPhotoCaptured(imageBitmap)
+        onCaptureHandled()
     }
 }
 

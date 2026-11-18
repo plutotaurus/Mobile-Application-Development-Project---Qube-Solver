@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
+import metropolia.myapplication.Camera.DrawCubeViewFinder
 import metropolia.myapplication.Camera.getAverageColor
 
 @Composable
@@ -33,7 +34,7 @@ fun CameraScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(20.dp)
     ) {
         Text("Camera Screen")
         Box(
@@ -49,6 +50,7 @@ fun CameraScreen(
                     }
                 )
             }
+            DrawCubeViewFinder()
             if (avgColor != null) {
                 Canvas(modifier = Modifier.size(100.dp).padding(16.dp)) {
                     drawCircle(color = avgColor!!)
