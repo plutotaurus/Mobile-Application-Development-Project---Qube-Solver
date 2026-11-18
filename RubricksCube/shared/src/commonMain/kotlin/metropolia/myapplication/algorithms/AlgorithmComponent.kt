@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -17,7 +18,7 @@ import metropolia.myapplication.data.Cube
 fun AlgorithmComponent(
     algorithmName: String,
     algorithm: String,
-    cube: Cube,
+    cube: Cube?,
     onImageClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -39,16 +40,22 @@ fun AlgorithmComponent(
             Card(
                 modifier = Modifier
                     .size(120.dp)
-                    .clickable(onClick = onImageClick),
+                    .clickable(enabled = cube != null, onClick = onImageClick),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.LightGray
                 ),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                CubeThumbnail(
-                    cube = cube,
-                    modifier = Modifier.fillMaxSize().padding(12.dp)
-                )
+                if (cube != null) {
+                    CubeThumbnail(
+                        cube = cube,
+                        modifier = Modifier.fillMaxSize().padding(12.dp)
+                    )
+                } else {
+                    Box(Modifier.fillMaxSize().padding(12.dp), contentAlignment = Alignment.Center) {
+                        Text("Preview unavailable")
+                    }
+                }
             }
 
             // Algorithm information

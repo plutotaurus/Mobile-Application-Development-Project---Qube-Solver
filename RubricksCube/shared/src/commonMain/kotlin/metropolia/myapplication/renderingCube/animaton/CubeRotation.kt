@@ -114,12 +114,12 @@ object CubeRotation {
 
             val position = cubelet.position
 
-            val belongsToLayer = when (move.axis) {
-                0 -> position.x == move.layer
-                1 -> position.y == move.layer
-                2 -> position.z == move.layer
-                else -> false
+            val coordinate = when (move.axis) {
+                0 -> position.x
+                1 -> position.y
+                else -> position.z
             }
+            val belongsToLayer = coordinate == move.layer || (move.wide && coordinate == 0)
 
             if (!belongsToLayer) {
                 cubelet
