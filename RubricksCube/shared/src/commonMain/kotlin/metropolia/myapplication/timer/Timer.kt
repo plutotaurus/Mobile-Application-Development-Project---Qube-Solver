@@ -22,9 +22,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import metropolia.myapplication.data.Cube
+import metropolia.myapplication.data.local.SolveTimeEntity
 import metropolia.myapplication.timer.*
 import kotlin.time.TimeSource
 
@@ -32,7 +36,12 @@ import kotlin.time.TimeSource
 fun TimerScreen(onNavigateBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val storage = rememberSolveStorage()
-    var solves by remember(storage) { mutableStateOf(storage.load()) }
+    var solves by remember(storage) { mutableStateOf(emptyList<Solve>()) }
+    var historyReady by remember(storage) { mutableStateOf(false) }
+    var historyError by remember { mutableStateOf(false) }
+    var historyRequest by remember { mutableIntStateOf(0) }
+    var pendingSolve by remember { mutableStateOf<SolveTimeEntity?>(null) }
+    var saving by remember { mutableStateOf(false) }
     var timer by remember { mutableStateOf(SolveTimer()) }
     val clock = remember { TimeSource.Monotonic.markNow() }
     fun now() = clock.elapsedNow().inWholeMilliseconds
@@ -44,6 +53,38 @@ fun TimerScreen(onNavigateBack: () -> Unit) {
 
     val scrambledCube = remember(scramble, loading) {
         if (loading) null else scramble?.let { Cube.solved().applyMoves(it) }
+    }
+
+    LaunchedEffect(storage, historyRequest) {
+        historyError = false
+        try {
+            storage.history.collect {
+                solves = it
+                historyReady = true
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            historyReady = false
+            historyError = true
+        }
+    }
+
+    fun savePendingSolve(solve: SolveTimeEntity) {
+        saving = true
+        scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                // Finish writing a completed solve even if the screen closes.
+                withContext(NonCancellable) { storage.save(solve) }
+                pendingSolve = null
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                // Keep the same solve and timestamp available for retry.
+            } finally {
+                saving = false
+            }
+        }
     }
 
     LaunchedEffect(scrambleRequest) {
@@ -71,13 +112,14 @@ fun TimerScreen(onNavigateBack: () -> Unit) {
     // Leaving the foreground abandons an unfinished attempt without adding a solve.
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { timer = timer.cancel() }
 
-    val canStart = !loading && scramble != null
+    val canStart = !loading && scramble != null && historyReady && pendingSolve == null
     val onPress by rememberUpdatedState<() -> Unit>({
         if (timer.phase == TimerPhase.RUNNING) {
             timer = timer.press(now())
             val completed = Solve(timer.elapsedMillis, requireNotNull(scramble))
-            solves = solves + completed
-            storage.save(solves)
+            val record = storage.completedSolve(completed)
+            pendingSolve = record
+            savePendingSolve(record)
             loading = true
             scrambleRequest++
         } else if (canStart) {
@@ -100,6 +142,10 @@ fun TimerScreen(onNavigateBack: () -> Unit) {
         TimerPhase.READY -> "Ready — release to start"
         TimerPhase.RUNNING -> "Touch to stop"
         TimerPhase.IDLE -> when {
+            historyError -> "Solve history unavailable"
+            !historyReady -> "Loading solve history…"
+            saving -> "Saving your solve…"
+            pendingSolve != null -> "Solve needs to be saved"
             loading -> "Preparing your scramble…"
             scrambleError != null -> "Scramble unavailable — retry above"
             else -> "Hold for 0.5 seconds, then release"
@@ -114,7 +160,7 @@ fun TimerScreen(onNavigateBack: () -> Unit) {
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text("3×3×3 Timer", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                TextButton(onClick = onNavigateBack, enabled = !active) { Text("Back") }
+                TextButton(onClick = onNavigateBack, enabled = !active && !saving) { Text("Back") }
             }
 
             Card(Modifier.fillMaxWidth()) {
@@ -188,11 +234,22 @@ fun TimerScreen(onNavigateBack: () -> Unit) {
                 }
             }
 
+            if (historyError) {
+                TextButton(onClick = { historyRequest++ }) { Text("Retry loading solve history") }
+            }
+            pendingSolve?.let { solve ->
+                if (!saving) {
+                    TextButton(onClick = { savePendingSolve(solve) }) { Text("Retry saving solve") }
+                }
+            }
+
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Card(Modifier.weight(1f)) {
                     Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text("Last 5", style = MaterialTheme.typography.titleSmall)
-                        if (solves.isEmpty()) Text("No solves yet", style = MaterialTheme.typography.bodySmall)
+                        if (historyReady && solves.isEmpty()) {
+                            Text("No solves yet", style = MaterialTheme.typography.bodySmall)
+                        }
                         solves.takeLast(5).asReversed().forEachIndexed { index, solve ->
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("${solves.size - index}.", style = MaterialTheme.typography.bodySmall)

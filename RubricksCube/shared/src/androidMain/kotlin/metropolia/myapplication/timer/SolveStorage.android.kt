@@ -4,17 +4,23 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import metropolia.myapplication.data.local.getQubeDatabase
+
+private object AndroidSolveStorage {
+    private var storage: SolveStorage? = null
+
+    @Synchronized
+    fun get(context: Context): SolveStorage = storage ?: run {
+        val appContext = context.applicationContext
+        SolveStorage(getQubeDatabase(appContext)) {
+            appContext.getSharedPreferences("solve_history", Context.MODE_PRIVATE)
+                .getString("solves", "").orEmpty()
+        }.also { storage = it }
+    }
+}
 
 @Composable
-actual fun rememberSolveStorage(): SolveStorage {
+internal actual fun rememberSolveStorage(): SolveStorage {
     val context = LocalContext.current.applicationContext
-    return remember(context) {
-        val preferences = context.getSharedPreferences("solve_history", Context.MODE_PRIVATE)
-        object : SolveStorage {
-            override fun load() = decodeSolves(preferences.getString("solves", "") ?: "")
-            override fun save(solves: List<Solve>) {
-                preferences.edit().putString("solves", encodeSolves(solves)).apply()
-            }
-        }
-    }
+    return remember(context) { AndroidSolveStorage.get(context) }
 }
