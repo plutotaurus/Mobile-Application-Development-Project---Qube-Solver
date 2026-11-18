@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import metropolia.myapplication.Camera.CameraScreen
 import org.jetbrains.compose.resources.StringResource
 import rubrickscube.shared.generated.resources.Res
 import rubrickscube.shared.generated.resources.algorithms
