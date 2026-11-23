@@ -122,10 +122,10 @@ fun parseMoveSequence(input: String): List<SequenceMove>? {
 }
 
 
-enum class RotateCube {
-    X, X_PRIME,
-    Y, Y_PRIME,
-    Z, Z_PRIME
+enum class RotateCube(internal val faceTurn: Move) {
+    X(Move.R), X_PRIME(Move.R_PRIME),
+    Y(Move.U), Y_PRIME(Move.U_PRIME),
+    Z(Move.F), Z_PRIME(Move.F_PRIME)
 }
 
 sealed class SequenceMove {
