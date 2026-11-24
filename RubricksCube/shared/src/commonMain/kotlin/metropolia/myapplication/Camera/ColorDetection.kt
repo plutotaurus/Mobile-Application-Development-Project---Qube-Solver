@@ -2,6 +2,7 @@ package metropolia.myapplication.Camera
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 
 fun getAverageColor(bitmap: ImageBitmap): androidx.compose.ui.graphics.Color {
     val pixels = IntArray(bitmap.width * bitmap.height)
@@ -53,18 +54,31 @@ fun getSideColors(bitmap: ImageBitmap): List<Color> {
         height = bitmap.height
     )
 
+    val gridArea = ViewFinderArea()
+
     val width = bitmap.width
     val height = bitmap.height
-    var redSum = 0L
-    var greenSum = 0L
-    var blueSum = 0L
-    var pixelCount = 0L
 
 
-    for (x_cubelet in 1..3) {
-        for (y_cubelet in 1..3) {
-            for (x in x_cubelet * (width / 3) until (x_cubelet + 1) * (width / 3) step 4) {
-                for (y in y_cubelet * (height / 3) until (y_cubelet + 1) * (height / 3) step 4) {
+    val gridLeft = (width * gridArea.left).toInt()
+    val gridTop = (height * gridArea.top).toInt()
+    val gridWidth = (width * gridArea.width).toInt()
+    val gridHeight = (height * gridArea.height).toInt()
+
+
+    //puts the colors in the lists
+    // 147
+    // 258
+    // 369
+
+    for (x_cubelet in 0..2) {
+        for (y_cubelet in 0..2) {
+            var pixelCount = 0L
+            var redSum = 0L
+            var greenSum = 0L
+            var blueSum = 0L
+            for (x in x_cubelet * (gridWidth / 3) + gridLeft until (x_cubelet + 1) * (gridWidth / 3) + gridLeft step 4) {
+                for (y in y_cubelet * (gridHeight / 3) + gridTop until (y_cubelet + 1) * (gridHeight / 3) + gridTop step 4) {
                     val pixelColor = pixels[y * width + x]
                     redSum += ((pixelColor ushr 16) and 0xFF).toLong()
                     greenSum += ((pixelColor ushr 8) and 0xFF).toLong()
@@ -72,8 +86,8 @@ fun getSideColors(bitmap: ImageBitmap): List<Color> {
                     pixelCount++
                 }
             }
+            colorsList.add(androidx.compose.ui.graphics.Color((redSum / pixelCount).toInt(), (greenSum / pixelCount).toInt(), (blueSum / pixelCount).toInt()))
         }
-        colorsList.add(androidx.compose.ui.graphics.Color((redSum / pixelCount).toInt(), (greenSum / pixelCount).toInt(), (blueSum / pixelCount).toInt()))
     }
 
     return colorsList

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -119,7 +120,41 @@ fun CapturePhoto(
         object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
                 val bitmap = image.toBitmap()
-                onPhotoCaptured(bitmap)
+                Log.d(
+                    "CameraCapture",
+                    "bitmap=${bitmap.width}x${bitmap.height}, " +
+                            "rotation=${image.imageInfo.rotationDegrees}, " +
+                            "crop=${image.cropRect}"
+                )
+
+                val crop = image.cropRect
+
+                val cropped = Bitmap.createBitmap(
+                    bitmap,
+                    crop.left,
+                    crop.top,
+                    crop.width(),
+                    crop.height()
+                )
+
+                val normalized = if (image.imageInfo.rotationDegrees == 0) {
+                    cropped
+                } else {
+                    Matrix().let { matrix ->
+                        matrix.postRotate(image.imageInfo.rotationDegrees.toFloat())
+                        Bitmap.createBitmap(
+                            cropped,
+                            0,
+                            0,
+                            cropped.width,
+                            cropped.height,
+                            matrix,
+                            true
+                        )
+                    }
+                }
+
+                onPhotoCaptured(normalized)
                 image.close()
             }
 
