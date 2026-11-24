@@ -60,10 +60,11 @@ fun getSideColors(bitmap: ImageBitmap): List<Color> {
     val height = bitmap.height
 
 
-    val gridLeft = (width * gridArea.left).toInt()
-    val gridTop = (height * gridArea.top).toInt()
-    val gridWidth = (width * gridArea.width).toInt()
-    val gridHeight = (height * gridArea.height).toInt()
+    val mapSize = minOf(bitmap.width, bitmap.height)
+    val gridWidth = (mapSize * 0.80f).toInt()
+    val gridHeight = (mapSize * 0.80f).toInt()
+    val gridLeft = (bitmap.width - gridWidth) / 2
+    val gridTop = (bitmap.height - gridHeight) / 2
 
 
     //puts the colors in the lists

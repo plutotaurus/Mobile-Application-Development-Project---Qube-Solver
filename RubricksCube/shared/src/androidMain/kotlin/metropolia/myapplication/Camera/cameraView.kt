@@ -45,6 +45,8 @@ actual fun CameraView(
         }
     }
 
+    val previewView = remember { PreviewView(context) }
+
     LaunchedEffect(lifeCycleOwner, cameraController) {
         cameraController.bindToLifecycle(lifeCycleOwner)
     }
@@ -54,6 +56,7 @@ actual fun CameraView(
             CapturePhoto(
                 context = context,
                 cameraController = cameraController,
+                previewView = previewView,
                 onPhotoCaptured = { bitmap ->
                     onPhotoCaptured(bitmap.asImageBitmap())
                     onCaptureHandled()
@@ -62,8 +65,6 @@ actual fun CameraView(
             )
         }
     }
-
-    val previewView = remember { PreviewView(context) }
 
     AndroidView(
         factory = {
@@ -110,6 +111,7 @@ actual fun CameraPermissionGate(content: @Composable () -> Unit) {
 fun CapturePhoto(
     context: Context,
     cameraController: LifecycleCameraController,
+    previewView: PreviewView,
     onPhotoCaptured: (Bitmap) -> Unit,
     onCaptureFailed: () -> Unit
 ) {
@@ -119,47 +121,12 @@ fun CapturePhoto(
         mainExecutor,
         object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
-                val bitmap = image.toBitmap()
-                Log.d(
-                    "CameraCapture",
-                    "bitmap=${bitmap.width}x${bitmap.height}, " +
-                            "rotation=${image.imageInfo.rotationDegrees}, " +
-                            "crop=${image.cropRect}"
-                )
-
-                val crop = image.cropRect
-
-                val cropped = Bitmap.createBitmap(
-                    bitmap,
-                    crop.left,
-                    crop.top,
-                    crop.width(),
-                    crop.height()
-                )
-
-                val normalized = if (image.imageInfo.rotationDegrees == 0) {
-                    cropped
-                } else {
-                    Matrix().let { matrix ->
-                        matrix.postRotate(image.imageInfo.rotationDegrees.toFloat())
-                        Bitmap.createBitmap(
-                            cropped,
-                            0,
-                            0,
-                            cropped.width,
-                            cropped.height,
-                            matrix,
-                            true
-                        )
-                    }
-                }
-
-                onPhotoCaptured(normalized)
                 image.close()
+                previewView.bitmap?.let(onPhotoCaptured)
+                    ?: onCaptureFailed()
             }
 
             override fun onError(exception: ImageCaptureException) {
-                Log.e("CameraView", "Photo capture failed: ${exception.message}", exception)
                 onCaptureFailed()
             }
         }

@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 fun DrawCubeViewFinder(
     colors: List<Color>
 ) {
-    val gridArea = ViewFinderArea()
 
     Box(
         modifier = androidx.compose.ui.Modifier
@@ -26,16 +25,13 @@ fun DrawCubeViewFinder(
         Canvas(
             modifier = androidx.compose.ui.Modifier
                 .fillMaxSize()
-                .aspectRatio(1 / 1f)
         ) {
 
-            val canvasWidth = size.width
-            val canvasHeight = size.height
-
-            val gridLeft = size.width * gridArea.left
-            val gridTop = size.height * gridArea.top
-            val gridWidth = size.width * gridArea.width
-            val gridHeight = size.height * gridArea.height
+            val previewSize = minOf(size.width, size.height)
+            val gridWidth = (previewSize * 0.80f)
+            val gridHeight = (previewSize * 0.80f)
+            val gridLeft = (size.width - gridWidth) / 2f
+            val gridTop = (size.height - gridHeight) / 2f
 
             val linewidth = 3.dp.toPx()
 
