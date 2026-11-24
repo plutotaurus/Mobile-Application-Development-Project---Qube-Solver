@@ -106,7 +106,12 @@ object CubeRotation {
     fun applyMove(
         cube: Cube,
         move: Move
-    ): Cube {
+    ): Cube = applyTurn(cube, move, wholeCube = false)
+
+    internal fun applyWholeCubeTurn(cube: Cube, move: Move): Cube =
+        applyTurn(cube, move, wholeCube = true)
+
+    private fun applyTurn(cube: Cube, move: Move, wholeCube: Boolean): Cube {
 
         val quarterTurns = (move.angle / 90f).toInt()
 
@@ -119,7 +124,7 @@ object CubeRotation {
                 1 -> position.y
                 else -> position.z
             }
-            val belongsToLayer = coordinate == move.layer || (move.wide && coordinate == 0)
+            val belongsToLayer = wholeCube || coordinate == move.layer || (move.wide && coordinate == 0)
 
             if (!belongsToLayer) {
                 cubelet

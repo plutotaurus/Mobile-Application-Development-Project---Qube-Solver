@@ -20,7 +20,8 @@ fun AlgorithmComponent(
     algorithm: String,
     cube: Cube?,
     onImageClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAlgorithmClick: (() -> Unit)? = null,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -60,7 +61,9 @@ fun AlgorithmComponent(
 
             // Algorithm information
             Card(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .then(if (onAlgorithmClick != null) Modifier.clickable(onClick = onAlgorithmClick) else Modifier),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.LightGray
                 ),

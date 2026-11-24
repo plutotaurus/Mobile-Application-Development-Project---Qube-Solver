@@ -147,8 +147,16 @@ private val catalogVersions = listOf(
     },
 )
 
+private val starterVariants = listOf(
+    AlgorithmVariantEntity("H-perm", "M2 U' M2 U2 M2 U' M2"),
+    AlgorithmVariantEntity("Ua-perm", "R U' R U R U R U' R' U' R2"),
+    AlgorithmVariantEntity("Ub-perm", "R2 U R U R' U' R' U' R' U R'"),
+    AlgorithmVariantEntity("Z-perm", "M2 U2 M U M2 U M2 U M"),
+)
+
 internal suspend fun AlgorithmDao.seedStarterAlgorithms() {
     for ((versionKey, algorithms) in catalogVersions) {
         importStarterCatalog(versionKey, libraryUser, algorithms)
     }
+    importStarterVariants(LIBRARY_USER_ID, starterVariants)
 }
