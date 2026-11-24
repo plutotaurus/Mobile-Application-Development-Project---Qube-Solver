@@ -10,7 +10,9 @@ internal val iosQubeDatabase by lazy {
     val directory = NSSearchPathForDirectoriesInDomains(
         NSDocumentDirectory, NSUserDomainMask, true,
     ).first() as String
-    Room.databaseBuilder<QubeDatabase>(name = "$directory/qube.db").buildQubeDatabase()
+    Room.databaseBuilder<QubeDatabase>(name = "$directory/qube.db")
+        .fallbackToDestructiveMigration(true)
+        .buildQubeDatabase()
 }
 
 @Composable

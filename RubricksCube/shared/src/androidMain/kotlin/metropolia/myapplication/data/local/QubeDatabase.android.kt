@@ -12,6 +12,7 @@ private object AndroidQubeDatabase {
     @Synchronized
     fun get(context: Context): QubeDatabase = database ?: Room
         .databaseBuilder<QubeDatabase>(context.applicationContext, "qube.db")
+        .fallbackToDestructiveMigration(true)
         .buildQubeDatabase()
         .also { database = it }
 }

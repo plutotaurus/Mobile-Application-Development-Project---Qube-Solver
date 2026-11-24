@@ -13,8 +13,20 @@ internal interface UserDao {
     @Upsert
     suspend fun save(user: UserEntity)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(users: List<UserEntity>)
+
     @Query("SELECT * FROM users WHERE userId = :userId")
     fun observe(userId: String): Flow<UserEntity?>
+
+    @Query("SELECT * FROM users ORDER BY username ASC")
+    fun observeAll(): Flow<List<UserEntity>>
+
+    @Query("SELECT * FROM users ORDER BY username ASC")
+    suspend fun getAll(): List<UserEntity>
+
+    @Query("SELECT * FROM users WHERE username = :username LIMIT 1")
+    suspend fun findByUsername(username: String): UserEntity?
 }
 
 @Dao

@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 internal data class UserEntity(
     @PrimaryKey val userId: String,
     val username: String,
+    val passwordHash: String? = null,
     val solvingMethod: String? = null,
     val cubeBrand: String? = null,
     val email: String? = null,

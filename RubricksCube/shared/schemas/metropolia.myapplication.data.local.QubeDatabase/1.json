@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "453ae76864365f6effb271a9dad1b6d0",
+    "identityHash": "2acc606cb9f66763475c9f46ff3b25f5",
     "entities": [
       {
         "tableName": "users",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userId` TEXT NOT NULL, `username` TEXT NOT NULL, `solvingMethod` TEXT, `cubeBrand` TEXT, `email` TEXT, `picture` TEXT, PRIMARY KEY(`userId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userId` TEXT NOT NULL, `username` TEXT NOT NULL, `passwordHash` TEXT, `solvingMethod` TEXT, `cubeBrand` TEXT, `email` TEXT, `picture` TEXT, PRIMARY KEY(`userId`))",
         "fields": [
           {
             "fieldPath": "userId",
@@ -19,6 +19,11 @@
             "columnName": "username",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "passwordHash",
+            "columnName": "passwordHash",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "solvingMethod",
@@ -632,7 +637,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '453ae76864365f6effb271a9dad1b6d0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2acc606cb9f66763475c9f46ff3b25f5')"
     ]
   }
 }
