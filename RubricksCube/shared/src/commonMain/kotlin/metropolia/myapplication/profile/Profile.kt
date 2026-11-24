@@ -55,7 +55,7 @@ fun LoginDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Log In") },
+        title = { Text("Account Authentication") },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -94,33 +94,51 @@ fun LoginDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    val nameToUse = usernameInput.ifBlank { "SpeedySam" }
-                    scope.launch {
-                        val existingUser = database.users().findByUsername(nameToUse)
-                        val hash = PasswordHasher.hashPassword(passwordInput)
-                        if (existingUser?.passwordHash != null) {
-                            if (PasswordHasher.verifyPassword(passwordInput, existingUser.passwordHash)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        val nameToUse = usernameInput.ifBlank { "SpeedySam" }
+                        scope.launch {
+                            val existingUser = database.users().findByUsername(nameToUse)
+                            if (existingUser != null) {
+                                errorMessage = "User already exists! Please log in."
+                            } else {
+                                val hash = PasswordHasher.hashPassword(passwordInput)
+                                val newUser = UserEntity(
+                                    userId = Uuid.random().toString(),
+                                    username = nameToUse,
+                                    passwordHash = hash
+                                )
+                                database.users().save(newUser)
                                 onLogin(nameToUse)
                                 onDismiss()
-                            } else {
-                                errorMessage = "Invalid password!"
                             }
-                        } else {
-                            val newUser = UserEntity(
-                                userId = Uuid.random().toString(),
-                                username = nameToUse,
-                                passwordHash = hash
-                            )
-                            database.users().save(newUser)
-                            onLogin(nameToUse)
-                            onDismiss()
                         }
                     }
+                ) {
+                    Text("Register")
                 }
-            ) {
-                Text("Log In")
+
+                Button(
+                    onClick = {
+                        val nameToUse = usernameInput.ifBlank { "SpeedySam" }
+                        scope.launch {
+                            val existingUser = database.users().findByUsername(nameToUse)
+                            if (existingUser == null) {
+                                errorMessage = "User not found! Please register first."
+                            } else if (existingUser.passwordHash != null && !PasswordHasher.verifyPassword(passwordInput, existingUser.passwordHash)) {
+                                errorMessage = "Invalid password!"
+                            } else {
+                                onLogin(nameToUse)
+                                onDismiss()
+                            }
+                        }
+                    }
+                ) {
+                    Text("Log In")
+                }
             }
         },
         dismissButton = {
