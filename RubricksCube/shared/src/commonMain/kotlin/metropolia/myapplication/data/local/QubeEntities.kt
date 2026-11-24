@@ -1,5 +1,6 @@
 package metropolia.myapplication.data.local
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -53,6 +54,43 @@ internal data class AlgorithmEntity(
     val type: String,
     val algorithmText: String,
 )
+
+@Entity(
+    tableName = "algorithm_variants",
+    primaryKeys = ["algorithmId", "algorithmText"],
+    foreignKeys = [ForeignKey(
+        entity = AlgorithmEntity::class,
+        parentColumns = ["algorithmId"],
+        childColumns = ["algorithmId"],
+        onDelete = ForeignKey.CASCADE,
+    )],
+)
+internal data class AlgorithmVariantEntity(
+    val algorithmId: String,
+    val algorithmText: String,
+)
+
+@Entity(
+    tableName = "algorithm_favourites",
+    foreignKeys = [ForeignKey(
+        entity = AlgorithmVariantEntity::class,
+        parentColumns = ["algorithmId", "algorithmText"],
+        childColumns = ["algorithmId", "algorithmText"],
+        onDelete = ForeignKey.CASCADE,
+    )],
+    indices = [Index(value = ["algorithmId", "algorithmText"])],
+)
+internal data class AlgorithmFavouriteEntity(
+    @PrimaryKey val algorithmId: String,
+    val algorithmText: String,
+)
+
+internal data class AlgorithmWithFavourite(
+    @Embedded val algorithm: AlgorithmEntity,
+    val favouriteText: String?,
+) {
+    val selectedMoves: String get() = favouriteText ?: algorithm.algorithmText
+}
 
 @Entity(
     tableName = "races",

@@ -1,0 +1,727 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "b6e6a4cf4d6b7aac2a39509b9c43a878",
+    "entities": [
+      {
+        "tableName": "users",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userId` TEXT NOT NULL, `username` TEXT NOT NULL, `solvingMethod` TEXT, `cubeBrand` TEXT, `email` TEXT, `picture` TEXT, PRIMARY KEY(`userId`))",
+        "fields": [
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "solvingMethod",
+            "columnName": "solvingMethod",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cubeBrand",
+            "columnName": "cubeBrand",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "picture",
+            "columnName": "picture",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "userId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_users_username",
+            "unique": true,
+            "columnNames": [
+              "username"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_users_username` ON `${TABLE_NAME}` (`username`)"
+          }
+        ]
+      },
+      {
+        "tableName": "solve_times",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`solveId` TEXT NOT NULL, `userId` TEXT, `timeMs` INTEGER NOT NULL, `scramble` TEXT NOT NULL, `dateRecorded` INTEGER, `cubeType` TEXT NOT NULL, `localOrder` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`userId`) REFERENCES `users`(`userId`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "solveId",
+            "columnName": "solveId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "timeMs",
+            "columnName": "timeMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scramble",
+            "columnName": "scramble",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateRecorded",
+            "columnName": "dateRecorded",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "cubeType",
+            "columnName": "cubeType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localOrder",
+            "columnName": "localOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "localOrder"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_solve_times_userId",
+            "unique": false,
+            "columnNames": [
+              "userId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_solve_times_userId` ON `${TABLE_NAME}` (`userId`)"
+          },
+          {
+            "name": "index_solve_times_solveId",
+            "unique": true,
+            "columnNames": [
+              "solveId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_solve_times_solveId` ON `${TABLE_NAME}` (`solveId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "users",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "userId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "algorithms",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`algorithmId` TEXT NOT NULL, `userId` TEXT NOT NULL, `type` TEXT NOT NULL, `algorithmText` TEXT NOT NULL, PRIMARY KEY(`algorithmId`), FOREIGN KEY(`userId`) REFERENCES `users`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "algorithmId",
+            "columnName": "algorithmId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "algorithmText",
+            "columnName": "algorithmText",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "algorithmId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_algorithms_userId",
+            "unique": false,
+            "columnNames": [
+              "userId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_algorithms_userId` ON `${TABLE_NAME}` (`userId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "users",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "userId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "algorithm_variants",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`algorithmId` TEXT NOT NULL, `algorithmText` TEXT NOT NULL, PRIMARY KEY(`algorithmId`, `algorithmText`), FOREIGN KEY(`algorithmId`) REFERENCES `algorithms`(`algorithmId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "algorithmId",
+            "columnName": "algorithmId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "algorithmText",
+            "columnName": "algorithmText",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "algorithmId",
+            "algorithmText"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "algorithms",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "algorithmId"
+            ],
+            "referencedColumns": [
+              "algorithmId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "algorithm_favourites",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`algorithmId` TEXT NOT NULL, `algorithmText` TEXT NOT NULL, PRIMARY KEY(`algorithmId`), FOREIGN KEY(`algorithmId`, `algorithmText`) REFERENCES `algorithm_variants`(`algorithmId`, `algorithmText`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "algorithmId",
+            "columnName": "algorithmId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "algorithmText",
+            "columnName": "algorithmText",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "algorithmId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_algorithm_favourites_algorithmId_algorithmText",
+            "unique": false,
+            "columnNames": [
+              "algorithmId",
+              "algorithmText"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_algorithm_favourites_algorithmId_algorithmText` ON `${TABLE_NAME}` (`algorithmId`, `algorithmText`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "algorithm_variants",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "algorithmId",
+              "algorithmText"
+            ],
+            "referencedColumns": [
+              "algorithmId",
+              "algorithmText"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "races",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`raceId` TEXT NOT NULL, `creatorUserId` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `scramble` TEXT NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`raceId`), FOREIGN KEY(`creatorUserId`) REFERENCES `users`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "raceId",
+            "columnName": "raceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creatorUserId",
+            "columnName": "creatorUserId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scramble",
+            "columnName": "scramble",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "raceId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_races_creatorUserId",
+            "unique": false,
+            "columnNames": [
+              "creatorUserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_races_creatorUserId` ON `${TABLE_NAME}` (`creatorUserId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "users",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "creatorUserId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "race_participants",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`raceId` TEXT NOT NULL, `userId` TEXT NOT NULL, `solveId` TEXT, `position` INTEGER, PRIMARY KEY(`raceId`, `userId`), FOREIGN KEY(`raceId`) REFERENCES `races`(`raceId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`userId`) REFERENCES `users`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`solveId`) REFERENCES `solve_times`(`solveId`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "raceId",
+            "columnName": "raceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "solveId",
+            "columnName": "solveId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "raceId",
+            "userId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_race_participants_userId",
+            "unique": false,
+            "columnNames": [
+              "userId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_race_participants_userId` ON `${TABLE_NAME}` (`userId`)"
+          },
+          {
+            "name": "index_race_participants_solveId",
+            "unique": false,
+            "columnNames": [
+              "solveId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_race_participants_solveId` ON `${TABLE_NAME}` (`solveId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "races",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "raceId"
+            ],
+            "referencedColumns": [
+              "raceId"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "userId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          },
+          {
+            "table": "solve_times",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "solveId"
+            ],
+            "referencedColumns": [
+              "solveId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "shared_solves",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shareId` TEXT NOT NULL, `solveId` TEXT NOT NULL, `sharedWithUserId` TEXT NOT NULL, PRIMARY KEY(`shareId`), FOREIGN KEY(`solveId`) REFERENCES `solve_times`(`solveId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`sharedWithUserId`) REFERENCES `users`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "shareId",
+            "columnName": "shareId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "solveId",
+            "columnName": "solveId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sharedWithUserId",
+            "columnName": "sharedWithUserId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "shareId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_shared_solves_solveId_sharedWithUserId",
+            "unique": true,
+            "columnNames": [
+              "solveId",
+              "sharedWithUserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_shared_solves_solveId_sharedWithUserId` ON `${TABLE_NAME}` (`solveId`, `sharedWithUserId`)"
+          },
+          {
+            "name": "index_shared_solves_sharedWithUserId",
+            "unique": false,
+            "columnNames": [
+              "sharedWithUserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_shared_solves_sharedWithUserId` ON `${TABLE_NAME}` (`sharedWithUserId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "solve_times",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "solveId"
+            ],
+            "referencedColumns": [
+              "solveId"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sharedWithUserId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "friendships",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`friendId` TEXT NOT NULL, `requesterUserId` TEXT NOT NULL, `receiverUserId` TEXT NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`friendId`), FOREIGN KEY(`requesterUserId`) REFERENCES `users`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`receiverUserId`) REFERENCES `users`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "friendId",
+            "columnName": "friendId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "requesterUserId",
+            "columnName": "requesterUserId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "receiverUserId",
+            "columnName": "receiverUserId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "friendId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_friendships_requesterUserId_receiverUserId",
+            "unique": true,
+            "columnNames": [
+              "requesterUserId",
+              "receiverUserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_friendships_requesterUserId_receiverUserId` ON `${TABLE_NAME}` (`requesterUserId`, `receiverUserId`)"
+          },
+          {
+            "name": "index_friendships_receiverUserId",
+            "unique": false,
+            "columnNames": [
+              "receiverUserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_friendships_receiverUserId` ON `${TABLE_NAME}` (`receiverUserId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "users",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "requesterUserId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          },
+          {
+            "table": "users",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "receiverUserId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "badges",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`badgeId` TEXT NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `icon` TEXT, PRIMARY KEY(`badgeId`))",
+        "fields": [
+          {
+            "fieldPath": "badgeId",
+            "columnName": "badgeId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "badgeId"
+          ]
+        }
+      },
+      {
+        "tableName": "user_badges",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userId` TEXT NOT NULL, `badgeId` TEXT NOT NULL, PRIMARY KEY(`userId`, `badgeId`), FOREIGN KEY(`userId`) REFERENCES `users`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`badgeId`) REFERENCES `badges`(`badgeId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "badgeId",
+            "columnName": "badgeId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "userId",
+            "badgeId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_user_badges_badgeId",
+            "unique": false,
+            "columnNames": [
+              "badgeId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_user_badges_badgeId` ON `${TABLE_NAME}` (`badgeId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "users",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "userId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          },
+          {
+            "table": "badges",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "badgeId"
+            ],
+            "referencedColumns": [
+              "badgeId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "history_imports",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`source` TEXT NOT NULL, PRIMARY KEY(`source`))",
+        "fields": [
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "source"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b6e6a4cf4d6b7aac2a39509b9c43a878')"
+    ]
+  }
+}

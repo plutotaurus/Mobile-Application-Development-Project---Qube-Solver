@@ -1,4 +1,4 @@
-package metropolia.myapplication.camera
+package metropolia.myapplication.Camera
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
