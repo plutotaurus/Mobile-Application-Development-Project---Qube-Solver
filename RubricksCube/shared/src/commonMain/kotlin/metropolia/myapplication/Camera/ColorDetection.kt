@@ -1,9 +1,9 @@
-package metropolia.myapplication.Camera
+package metropolia.myapplication.camera
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Color
 
-fun getAverageColor(bitmap: ImageBitmap): androidx.compose.ui.graphics.Color {
+fun getAverageColor(bitmap: ImageBitmap): Color {
     val pixels = IntArray(bitmap.width * bitmap.height)
     bitmap.readPixels(
         buffer = pixels,
@@ -34,5 +34,5 @@ fun getAverageColor(bitmap: ImageBitmap): androidx.compose.ui.graphics.Color {
     val avgGreen = (greenSum / pixelCount).toInt()
     val avgBlue = (blueSum / pixelCount).toInt()
 
-    return androidx.compose.ui.graphics.Color(avgRed, avgGreen, avgBlue)
+    return Color(avgRed, avgGreen, avgBlue)
 }

@@ -1,4 +1,4 @@
-package metropolia.myapplication.Camera
+package metropolia.myapplication.camera
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
@@ -7,16 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun DrawCubeViewFinder() {
     Box(
-        modifier = androidx.compose.ui.Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Canvas(
-            modifier = androidx.compose.ui.Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
                 .aspectRatio(1/1f)
                 .padding(40.dp)
         ) {
@@ -25,7 +27,7 @@ fun DrawCubeViewFinder() {
 
             val linewidth = 3.dp.toPx()
             drawRect(
-                color = androidx.compose.ui.graphics.Color.Black,
+                color = Color.Black,
                 style = Stroke(width = linewidth)
             )
 
@@ -34,24 +36,24 @@ fun DrawCubeViewFinder() {
             repeat(3) {
                 i ->
                 drawLine(
-                    color = androidx.compose.ui.graphics.Color.Black,
-                    start = androidx.compose.ui.geometry.Offset(
+                    color = Color.Black,
+                    start = Offset(
                         x = 0f,
                         y = canvasHeight / 3 * i
                     ),
-                    end = androidx.compose.ui.geometry.Offset(
+                    end = Offset(
                         x = canvasWidth,
                         y = canvasHeight / 3 * i
                     ),
                     strokeWidth = linewidth
                 )
                 drawLine(
-                    color = androidx.compose.ui.graphics.Color.Black,
-                    start = androidx.compose.ui.geometry.Offset(
+                    color = Color.Black,
+                    start = Offset(
                         x = canvasWidth / 3 * i,
                         y = 0f
                     ),
-                    end = androidx.compose.ui.geometry.Offset(
+                    end = Offset(
                         x = canvasWidth / 3 * i,
                         y = canvasHeight
                     ),
