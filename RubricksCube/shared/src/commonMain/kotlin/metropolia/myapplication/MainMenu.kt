@@ -92,20 +92,7 @@ fun MainMenuScreen(
     onNavigateToProfile: () -> Unit,
     isLoggedIn: Boolean = false,
     username: String = "Guest",
-    onLogin: (String) -> Unit = {},
-    onLogout: () -> Unit = {}
 ) {
-    var showLoginDialog by remember { mutableStateOf(false) }
-
-    if (showLoginDialog) {
-        LoginDialog(
-            onDismiss = { showLoginDialog = false },
-            onLogin = { newUsername: String ->
-                onLogin(newUsername)
-                showLoginDialog = false
-            }
-        )
-    }
 
     Column(
         modifier = Modifier
@@ -124,28 +111,12 @@ fun MainMenuScreen(
                     text = "Qube Solver",
                     style = MaterialTheme.typography.headlineMedium
                 )
-                Text(
-                    text = if (isLoggedIn) "Logged in as $username" else "Guest",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            if (isLoggedIn) {
-                Button(
-                    onClick = onLogout,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                if (isLoggedIn) {
+                    Text(
+                        text = "Hi $username",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                ) {
-                    Text("Log Out")
-                }
-            } else {
-                Button(
-                    onClick = { showLoginDialog = true }
-                ) {
-                    Text("Log In")
                 }
             }
         }

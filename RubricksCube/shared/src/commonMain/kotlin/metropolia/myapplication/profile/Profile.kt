@@ -32,7 +32,6 @@ import rubrickscube.shared.generated.resources.medal_bronze_prize_svgrepo_com
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import metropolia.myapplication.data.local.UserEntity
 import metropolia.myapplication.data.local.PasswordHasher
@@ -61,11 +60,6 @@ fun LoginDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = "Single user in DB: SpeedySam (password: password123)",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
 
                 if (errorMessage != null) {
                     Text(

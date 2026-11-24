@@ -55,14 +55,6 @@ fun QubeApp(
                 onNavigateToProfile = { navcontroller.navigate(AppScreen.Profile.name) },
                 isLoggedIn = isLoggedIn,
                 username = username,
-                onLogin = { newName ->
-                    isLoggedIn = true
-                    username = newName
-                },
-                onLogout = {
-                    isLoggedIn = false
-                    username = "Guest"
-                }
             )
         }
         composable(AppScreen.Camera.name) {
