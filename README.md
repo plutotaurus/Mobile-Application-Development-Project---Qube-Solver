@@ -15,3 +15,6 @@ ER Digram
 
 Relational DB Schema
 <img width="4080" height="2706" alt="erdplus (3)" src="https://github.com/user-attachments/assets/78362c14-ca22-49b5-9c5d-4ebee8db3a44" />
+
+# Sprint 3
+https://docs.google.com/document/d/1qsyNSDxSpU_OdjZOGTU-i7UNC8xvgx_zhOBw-n0wYqc/edit?usp=sharing
