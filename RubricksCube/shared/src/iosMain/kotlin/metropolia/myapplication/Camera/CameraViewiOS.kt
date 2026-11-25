@@ -11,13 +11,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.interop.UIKitView
 import androidx.compose.ui.unit.dp
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.readBytes
+import kotlinx.cinterop.useContents
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDeviceInput
 import platform.AVFoundation.AVCaptureOutput
@@ -168,17 +172,30 @@ private class CameraResources {
         session.addOutput(photoOutput)
     }
 
+    @OptIn(ExperimentalForeignApi::class)
     fun capturePhoto(
         onPhotoCaptured: (ImageBitmap) -> Unit,
         onCaptureHandled: () -> Unit
     ) {
+        val previewAspectRatio = previewLayer.bounds.useContents {
+            (size.width / size.height).toFloat()
+        }
+        check(previewAspectRatio.isFinite() && previewAspectRatio > 0f) {
+            "Camera preview has no valid size"
+        }
+
         val settings = AVCapturePhotoSettings.photoSettings()
-        val delegate = PhotoCaptureDelegate(onPhotoCaptured, onCaptureHandled)
+        val delegate = PhotoCaptureDelegate(
+            previewAspectRatio = previewAspectRatio,
+            onPhotoCaptured = onPhotoCaptured,
+            onCaptureHandled = onCaptureHandled
+        )
         photoOutput.capturePhotoWithSettings(settings, delegate)
     }
 }
 
 private class PhotoCaptureDelegate(
+    private val previewAspectRatio: Float,
     private val onPhotoCaptured: (ImageBitmap) -> Unit,
     private val onCaptureHandled: () -> Unit
 ) : NSObject(), AVCapturePhotoCaptureDelegateProtocol {
@@ -206,11 +223,43 @@ private class PhotoCaptureDelegate(
             return
         }
 
-        val imageBitmap = encodedImage.decodeToImageBitmap()
+        val imageBitmap = encodedImage
+            .decodeToImageBitmap()
+            .centerCropToAspectRatio(previewAspectRatio)
 
         onPhotoCaptured(imageBitmap)
         onCaptureHandled()
     }
+}
+
+private fun ImageBitmap.centerCropToAspectRatio(targetAspectRatio: Float): ImageBitmap {
+    val sourceAspectRatio = width.toFloat() / height
+    val cropWidth: Int
+    val cropHeight: Int
+    val cropLeft: Int
+    val cropTop: Int
+
+    if (sourceAspectRatio > targetAspectRatio) {
+        cropHeight = height
+        cropWidth = (height * targetAspectRatio).toInt().coerceIn(1, width)
+        cropLeft = (width - cropWidth) / 2
+        cropTop = 0
+    } else {
+        cropWidth = width
+        cropHeight = (width / targetAspectRatio).toInt().coerceIn(1, height)
+        cropLeft = 0
+        cropTop = (height - cropHeight) / 2
+    }
+
+    if (cropWidth == width && cropHeight == height) return this
+
+    val croppedImage = ImageBitmap(cropWidth, cropHeight)
+    Canvas(croppedImage).drawImage(
+        image = this,
+        topLeftOffset = Offset(-cropLeft.toFloat(), -cropTop.toFloat()),
+        paint = Paint()
+    )
+    return croppedImage
 }
 
 @OptIn(ExperimentalForeignApi::class)
