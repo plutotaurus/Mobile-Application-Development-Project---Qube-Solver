@@ -27,6 +27,7 @@ fun CameraScreen(
 
     var avgColor: Color? by remember { mutableStateOf<Color?>(null) }
 
+    var sideColors: List<Color> by remember { mutableStateOf(mutableListOf<Color>()) }
 
     // Camera screen content
     Column(
@@ -44,11 +45,12 @@ fun CameraScreen(
                     captureRequested = captureRequested,
                     onCaptureHandled = { captureRequested = false },
                     onPhotoCaptured = { image ->
-                        avgColor = getAverageColor(image)
+                        sideColors = getSideColors(image)
+                        // avgColor = getAverageColor(image)
                     }
                 )
             }
-            DrawCubeViewFinder()
+            DrawCubeViewFinder(colors = sideColors)
             if (avgColor != null) {
                 Canvas(modifier = Modifier.size(100.dp).padding(16.dp)) {
                     drawCircle(color = avgColor!!)
