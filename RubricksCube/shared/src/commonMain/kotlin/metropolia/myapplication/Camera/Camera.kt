@@ -30,7 +30,7 @@ fun CameraScreen(
             .padding(20.dp)
     ) {
         Text("Camera Screen")
-        cubeSideCollecting()
+        cubeSideCollecting(Modifier.weight(1f))
         Button(
             onClick = onNavigateBack
         ) {

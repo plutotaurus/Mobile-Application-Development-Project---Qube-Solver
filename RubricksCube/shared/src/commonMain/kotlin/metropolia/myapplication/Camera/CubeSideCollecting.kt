@@ -29,7 +29,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 
 @Composable
-fun cubeSideCollecting(): List<Cubelet> {
+fun cubeSideCollecting(modifier: Modifier): List<Cubelet> {
 
     val cubelets by remember { mutableStateOf(mutableListOf<Cubelet>()) }
 
@@ -45,7 +45,7 @@ fun cubeSideCollecting(): List<Cubelet> {
 
     var isWaiting by remember { mutableStateOf(false) }
 
-        Column {
+        Column(modifier = modifier) {
 
             Box(
                 modifier = Modifier
