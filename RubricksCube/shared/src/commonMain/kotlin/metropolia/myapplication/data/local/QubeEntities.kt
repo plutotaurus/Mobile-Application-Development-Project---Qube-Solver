@@ -11,7 +11,6 @@ internal data class UserEntity(
     @PrimaryKey val userId: String,
     val username: String,
     val solvingMethod: String? = null,
-
     val passwordHash: String? = null,
     val cubeBrand: String? = null,
     val email: String? = null,

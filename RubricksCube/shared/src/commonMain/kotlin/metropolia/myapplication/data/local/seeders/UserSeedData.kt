@@ -15,5 +15,5 @@ internal val defaultUser = UserEntity(
 )
 
 internal suspend fun UserDao.seedSampleUser() {
-    save(defaultUser)
+    seedUser(defaultUser)
 }
