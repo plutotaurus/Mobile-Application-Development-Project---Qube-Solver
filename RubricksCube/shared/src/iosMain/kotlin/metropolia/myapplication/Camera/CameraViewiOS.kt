@@ -1,6 +1,7 @@
-package metropolia.myapplication.camera
+package metropolia.myapplication.Camera
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -13,11 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.interop.UIKitView
+import androidx.compose.ui.unit.dp
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.readBytes
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDeviceInput
+import platform.AVFoundation.AVCaptureOutput
 import platform.AVFoundation.AVCapturePhoto
 import platform.AVFoundation.AVCapturePhotoOutput
 import platform.AVFoundation.AVCapturePhotoCaptureDelegateProtocol
@@ -34,13 +37,19 @@ import platform.AVFoundation.AVPlayer
 import platform.AVFoundation.AVPlayerItem
 import platform.AVFoundation.AVPlayerItemDidPlayToEndTimeNotification
 import platform.AVFoundation.AVPlayerLayer
+import platform.AVFoundation.AVPlayerLooper
+import platform.AVFoundation.AVQueuePlayer
 import platform.AVFoundation.authorizationStatusForMediaType
+import platform.AVFoundation.duration
 import platform.AVFoundation.fileDataRepresentation
 import platform.AVFoundation.play
 import platform.AVFoundation.requestAccessForMediaType
 import platform.AVFoundation.position
 import platform.AVFoundation.seekToTime
 import platform.CoreGraphics.CGRectZero
+import platform.CoreMedia.CMTimeRange
+import platform.CoreMedia.CMTimeRangeMake
+import platform.CoreMedia.kCMTimeRangeInvalid
 import platform.CoreMedia.kCMTimeZero
 import platform.Foundation.NSBundle
 import platform.Foundation.NSError
