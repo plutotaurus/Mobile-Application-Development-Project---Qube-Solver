@@ -1,4 +1,4 @@
-package metropolia.myapplication.Camera
+package metropolia.myapplication.camera
 
 import android.Manifest
 import android.content.Context
@@ -35,7 +35,6 @@ actual fun CameraView(
     onCaptureHandled: () -> Unit,
     onPhotoCaptured: (ImageBitmap) -> Unit
 ) {
-
     val context = LocalContext.current
     val lifeCycleOwner = LocalLifecycleOwner.current
     val cameraController = remember(context) {
@@ -45,7 +44,11 @@ actual fun CameraView(
     }
 
     LaunchedEffect(lifeCycleOwner, cameraController) {
-        cameraController.bindToLifecycle(lifeCycleOwner)
+        try {
+            cameraController.bindToLifecycle(lifeCycleOwner)
+        } catch (e: Exception) {
+            Log.e("CameraView", "Failed to bind camera to lifecycle", e)
+        }
     }
 
     LaunchedEffect(captureRequested) {
@@ -54,8 +57,13 @@ actual fun CameraView(
                 context = context,
                 cameraController = cameraController,
                 onPhotoCaptured = { bitmap ->
-                    onPhotoCaptured(bitmap.asImageBitmap())
-                    onCaptureHandled()
+                    try {
+                        onPhotoCaptured(bitmap.asImageBitmap())
+                    } catch (e: Exception) {
+                        Log.e("CameraView", "Error converting bitmap", e)
+                    } finally {
+                        onCaptureHandled()
+                    }
                 },
                 onCaptureFailed = onCaptureHandled
             )
@@ -76,9 +84,6 @@ actual fun CameraView(
 
 @Composable
 actual fun CameraPermissionGate(content: @Composable () -> Unit) {
-    // This function will handle the camera permission logic
-    // You can use this to wrap the camera view with permission checks
-
     val context = LocalContext.current
     var granted by remember {
         mutableStateOf(
@@ -114,19 +119,35 @@ fun CapturePhoto(
 ) {
     val mainExecutor: Executor = context.mainExecutor
 
-    cameraController.takePicture(
-        mainExecutor,
-        object : ImageCapture.OnImageCapturedCallback() {
-            override fun onCaptureSuccess(image: ImageProxy) {
-                val bitmap = image.toBitmap()
-                onPhotoCaptured(bitmap)
-                image.close()
-            }
+    try {
+        cameraController.takePicture(
+            mainExecutor,
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    try {
+                        val bitmap = image.toBitmap()
+                        val softwareBitmap = if (bitmap.config == Bitmap.Config.HARDWARE) {
+                            bitmap.copy(Bitmap.Config.ARGB_8888, false) ?: bitmap
+                        } else {
+                            bitmap
+                        }
+                        onPhotoCaptured(softwareBitmap)
+                    } catch (e: Exception) {
+                        Log.e("CameraView", "Photo processing failed: ${e.message}", e)
+                        onCaptureFailed()
+                    } finally {
+                        image.close()
+                    }
+                }
 
-            override fun onError(exception: ImageCaptureException) {
-                Log.e("CameraView", "Photo capture failed: ${exception.message}", exception)
-                onCaptureFailed()
+                override fun onError(exception: ImageCaptureException) {
+                    Log.e("CameraView", "Photo capture failed: ${exception.message}", exception)
+                    onCaptureFailed()
+                }
             }
-        }
-    )
+        )
+    } catch (e: Exception) {
+        Log.e("CameraView", "CapturePhoto exception: ${e.message}", e)
+        onCaptureFailed()
+    }
 }
