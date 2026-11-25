@@ -23,12 +23,6 @@ fun CameraScreen(
     onNavigateBack: () -> Unit
 ) {
 
-    var captureRequested by remember { mutableStateOf(false) }
-
-    var avgColor: Color? by remember { mutableStateOf<Color?>(null) }
-
-    var sideColors: List<Color> by remember { mutableStateOf(mutableListOf<Color>()) }
-
     // Camera screen content
     Column(
         modifier = Modifier
@@ -36,32 +30,7 @@ fun CameraScreen(
             .padding(20.dp)
     ) {
         Text("Camera Screen")
-        Box(
-            modifier = Modifier
-                .weight(1f)
-        ) {
-            CameraPermissionGate {
-                CameraView(
-                    captureRequested = captureRequested,
-                    onCaptureHandled = { captureRequested = false },
-                    onPhotoCaptured = { image ->
-                        sideColors = getSideColors(image)
-                        // avgColor = getAverageColor(image)
-                    }
-                )
-            }
-            DrawCubeViewFinder(colors = sideColors)
-            if (avgColor != null) {
-                Canvas(modifier = Modifier.size(100.dp).padding(16.dp)) {
-                    drawCircle(color = avgColor!!)
-                }
-            }
-        }
-        Button(
-            onClick = { captureRequested = true }
-        ) {
-            Text("Take Photo")
-        }
+        cubeSideCollecting()
         Button(
             onClick = onNavigateBack
         ) {
