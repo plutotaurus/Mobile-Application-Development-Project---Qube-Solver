@@ -1,14 +1,17 @@
-package metropolia.myapplication.data.local
+package metropolia.myapplication.data.local.seeders
 
 private const val LIBRARY_USER_ID = "local-library"
 
-private val libraryUser = UserEntity(userId = LIBRARY_USER_ID, username = "Cube Library")
+private val libraryUser = _root_ide_package_.metropolia.myapplication.data.local.UserEntity(
+    userId = LIBRARY_USER_ID,
+    username = "Cube Library"
+)
 
 // PLL cases and sequences from https://jperm.net/algs/pll.
 // Keep IDs stable and append new versions so existing installs receive new cases.
 private val catalogVersions = listOf(
     "algorithm_catalog_v1" to listOf(
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "T-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
@@ -16,121 +19,121 @@ private val catalogVersions = listOf(
         ),
     ),
     "algorithm_catalog_v2" to listOf(
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Aa-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "x L2 D2 L' U' L D2 L' U L'",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Ab-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "x' L2 D2 L U L' D2 L U' L",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "E-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "x' L' U L D' L' U' L D L' U' L D' L' U L D",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "F-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Ga-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R2 U R' U R' U' R U' R2 U' D R' U R D'",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Gb-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R' U' R U D' R2 U R' U R U' R U' R2 D",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Gc-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R2 U' R U' R U R' U R2 U D' R U' R' D",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Gd-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R U R' U' D R2 U' R U' R' U R' U R2 D'",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "H-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "M2 U M2 U2 M2 U M2",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Ja-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "x R2 F R F' R U2 r' U r U2",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Jb-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R U R' F' R U R' U' R' F R2 U' R'",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Na-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Nb-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R' U R U' R' F' U' F R U R' F R' F' R U' R",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Ra-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R U' R' U' R U R D R' U' R D' R' U2 R'",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Rb-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R2 F R U R U' R' F' R U2 R' U2 R",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Ua-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "M2 U M U2 M' U M2",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Ub-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "M2 U' M U2 M' U' M2",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "V-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "R' U R' U' y R' F' R2 U' R' U R' F R F",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Y-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
             algorithmText = "F R U' R' U' R U R' F' R U R' U' R' F R F'",
         ),
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = "Z-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
@@ -138,7 +141,7 @@ private val catalogVersions = listOf(
         ),
     ),
     "algorithm_catalog_v3" to ollSeedMoves.map { (caseNumber, moves) ->
-        AlgorithmEntity(
+        _root_ide_package_.metropolia.myapplication.data.local.AlgorithmEntity(
             algorithmId = caseNumber.toString(),
             userId = LIBRARY_USER_ID,
             type = "OLL",
@@ -148,13 +151,25 @@ private val catalogVersions = listOf(
 )
 
 private val starterVariants = listOf(
-    AlgorithmVariantEntity("H-perm", "M2 U' M2 U2 M2 U' M2"),
-    AlgorithmVariantEntity("Ua-perm", "R U' R U R U R U' R' U' R2"),
-    AlgorithmVariantEntity("Ub-perm", "R2 U R U R' U' R' U' R' U R'"),
-    AlgorithmVariantEntity("Z-perm", "M2 U2 M U M2 U M2 U M"),
+    _root_ide_package_.metropolia.myapplication.data.local.AlgorithmVariantEntity(
+        "H-perm",
+        "M2 U' M2 U2 M2 U' M2"
+    ),
+    _root_ide_package_.metropolia.myapplication.data.local.AlgorithmVariantEntity(
+        "Ua-perm",
+        "R U' R U R U R U' R' U' R2"
+    ),
+    _root_ide_package_.metropolia.myapplication.data.local.AlgorithmVariantEntity(
+        "Ub-perm",
+        "R2 U R U R' U' R' U' R' U R'"
+    ),
+    _root_ide_package_.metropolia.myapplication.data.local.AlgorithmVariantEntity(
+        "Z-perm",
+        "M2 U2 M U M2 U M2 U M"
+    ),
 )
 
-internal suspend fun AlgorithmDao.seedStarterAlgorithms() {
+internal suspend fun metropolia.myapplication.data.local.AlgorithmDao.seedStarterAlgorithms() {
     for ((versionKey, algorithms) in catalogVersions) {
         importStarterCatalog(versionKey, libraryUser, algorithms)
     }
