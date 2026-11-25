@@ -1,4 +1,4 @@
-package metropolia.myapplication
+package metropolia.myapplication.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,6 +8,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,6 +19,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import metropolia.myapplication.Badge
+import metropolia.myapplication.BadgeGrid
+import metropolia.myapplication.BadgeRarity
 import rubrickscube.shared.generated.resources.Res
 import rubrickscube.shared.generated.resources.medal_gold_winner_2_svgrepo_com
 import rubrickscube.shared.generated.resources.medal_silver_badge_svgrepo_com
@@ -23,8 +30,24 @@ import rubrickscube.shared.generated.resources.medal_bronze_prize_svgrepo_com
 @Composable
 fun ProfileScreen(
     onNavigateBack: () -> Unit = {},
-    onNavigateToBadges: () -> Unit = {}
+    onNavigateToBadges: () -> Unit = {},
+    isLoggedIn: Boolean = false,
+    username: String = "Guest",
+    onLogin: (String) -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
+
+    var showLoginDialog by remember { mutableStateOf(false) }
+
+    if (showLoginDialog) {
+        LoginDialog(
+            onDismiss = { showLoginDialog = false },
+            onLogin = { newUsername: String ->
+                onLogin(newUsername)
+                showLoginDialog = false
+            }
+        )
+    }
     val lazyListState = rememberLazyListState()
 
     // Calculate scroll offset for collapsing header
@@ -52,8 +75,34 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
-                Button(onClick = {}) {
-                    Text("3×3")
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(onClick = {}) {
+                        Text("3×3")
+                    }
+
+                    if (isLoggedIn) {
+                        Button(
+                            onClick = onLogout,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        ) {
+                            Text("Log Out")
+                        }
+                    } else {
+                        Button(
+                            onClick = { showLoginDialog = true }
+                        ) {
+                            Text("Log In")
+                        }
+                    }
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -86,9 +135,27 @@ fun ProfileScreen(
                     ) {
                         BadgeGrid(
                             badges = listOf(
-                                Badge("1", "Gold Solver", Res.drawable.medal_gold_winner_2_svgrepo_com, true, BadgeRarity.LEGENDARY),
-                                Badge("2", "Silver Solver", Res.drawable.medal_silver_badge_svgrepo_com, true, BadgeRarity.RARE),
-                                Badge("3", "Bronze Solver", Res.drawable.medal_bronze_prize_svgrepo_com, true, BadgeRarity.COMMON),
+                                Badge(
+                                    "1",
+                                    "Gold Solver",
+                                    Res.drawable.medal_gold_winner_2_svgrepo_com,
+                                    true,
+                                    BadgeRarity.LEGENDARY
+                                ),
+                                Badge(
+                                    "2",
+                                    "Silver Solver",
+                                    Res.drawable.medal_silver_badge_svgrepo_com,
+                                    true,
+                                    BadgeRarity.RARE
+                                ),
+                                Badge(
+                                    "3",
+                                    "Bronze Solver",
+                                    Res.drawable.medal_bronze_prize_svgrepo_com,
+                                    true,
+                                    BadgeRarity.COMMON
+                                ),
                                 Badge("4", "Speedster", null, false, BadgeRarity.COMMON),
                                 Badge("5", "Master", null, false, BadgeRarity.COMMON),
                                 Badge("6", "Expert", null, false, BadgeRarity.COMMON),
