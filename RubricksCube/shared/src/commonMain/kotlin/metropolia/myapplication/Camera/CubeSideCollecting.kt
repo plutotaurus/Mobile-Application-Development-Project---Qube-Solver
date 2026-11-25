@@ -176,13 +176,41 @@ fun getNextViewFinderColor(face: Int): List<Color> {
 fun matchToCubeColors(colors: List<Color>): List<Color> {
 
     return colors.map { color ->
-        val colorCloseness: List<Pair<CubeColor, Float>> = CubeColor.entries.map { cubeColor ->
-            val distance = abs(cubeColor.color.red - color.red) +
-                    abs(cubeColor.color.green - color.green) +
-                    abs(cubeColor.color.blue - color.blue)
-            cubeColor to distance
-        }
+        return colors.map { sampledColor ->
+            val red = sampledColor.red
+            val green = sampledColor.green
+            val blue = sampledColor.blue
 
-        colorCloseness.minBy { it.second }.first.color
+            val brightestChannel = maxOf(red, green, blue)
+            val darkestChannel = minOf(red, green, blue)
+            val averageBrightness = (red + green + blue) / 3f
+
+            val channelRange = brightestChannel - darkestChannel
+            val colorSaturation = if (brightestChannel > 0f) {
+                channelRange / brightestChannel
+            } else {
+                0f
+            }
+
+            val looksWhite = averageBrightness >= 0.55f && colorSaturation <= 0.30f
+
+            if (looksWhite) {
+                CubeColor.WHITE.color
+            } else {
+                val nonWhiteCubeColors = CubeColor.entries.filterNot { cubeColor ->
+                    cubeColor == CubeColor.WHITE
+                }
+
+                val closestCubeColor = nonWhiteCubeColors.minBy { cubeColor ->
+                    val redDifference = abs(cubeColor.color.red - red)
+                    val greenDifference = abs(cubeColor.color.green - green)
+                    val blueDifference = abs(cubeColor.color.blue - blue)
+
+                    redDifference + greenDifference + blueDifference
+                }
+
+                closestCubeColor.color
+            }
         }
+    }
     }
