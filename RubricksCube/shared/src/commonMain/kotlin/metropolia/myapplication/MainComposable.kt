@@ -1,12 +1,17 @@
 package metropolia.myapplication
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import metropolia.myapplication.Camera.CameraScreen
+import metropolia.myapplication.profile.ProfileScreen
 import org.jetbrains.compose.resources.StringResource
 import rubrickscube.shared.generated.resources.Res
 import rubrickscube.shared.generated.resources.algorithms
@@ -28,11 +33,15 @@ enum class AppScreen(val title: StringResource) {
 }
 
 
+
 @Composable
 @Preview
 fun QubeApp(
     navcontroller: NavHostController = rememberNavController()
 ) {
+    var isLoggedIn by remember { mutableStateOf(false) }
+    var username by remember { mutableStateOf("Guest") }
+
     NavHost(
         navController = navcontroller,
         startDestination = AppScreen.MainMenu.name
@@ -44,7 +53,8 @@ fun QubeApp(
                 onNavigateToAlgorithms = { navcontroller.navigate(AppScreen.Algorithms.name) },
                 onNavigateToTimer = { navcontroller.navigate(AppScreen.Timer.name) },
                 onNavigateToRacing = { navcontroller.navigate(AppScreen.Racing.name) },
-                onNavigateToProfile = { navcontroller.navigate(AppScreen.Profile.name) }
+                onNavigateToProfile = { navcontroller.navigate(AppScreen.Profile.name) },
+                username = username
             )
         }
         composable(AppScreen.Camera.name) {
@@ -63,9 +73,19 @@ fun QubeApp(
             )
         }
         composable(AppScreen.Profile.name){
-            ProfileScreen (
-                onNavigateBack = {navcontroller.popBackStack()},
-                onNavigateToBadges = { navcontroller.navigate(AppScreen.Badges.name) }
+            ProfileScreen(
+                onNavigateBack = { navcontroller.popBackStack() },
+                onNavigateToBadges = { navcontroller.navigate(AppScreen.Badges.name) },
+                isLoggedIn = isLoggedIn,
+                username = username,
+                onLogin = { newName ->
+                    isLoggedIn = true
+                    username = newName
+                },
+                onLogout = {
+                    isLoggedIn = false
+                    username = "Guest"
+                }
             )
         }
         composable(AppScreen.Badges.name) {

@@ -36,7 +36,7 @@ import metropolia.myapplication.data.local.AlgorithmFavouriteEntity
 import metropolia.myapplication.data.local.AlgorithmWithFavourite
 import metropolia.myapplication.data.local.rememberLegacyAlgorithmFavourites
 import metropolia.myapplication.data.local.rememberQubeDatabase
-import metropolia.myapplication.data.local.seedStarterAlgorithms
+import metropolia.myapplication.data.local.seeders.seedStarterAlgorithms
 import metropolia.myapplication.data.parseMoveSequence
 import metropolia.myapplication.renderingCube.animaton.AnimatedCubeRendering
 

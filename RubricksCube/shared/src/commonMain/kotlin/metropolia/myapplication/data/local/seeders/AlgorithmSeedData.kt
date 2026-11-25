@@ -1,8 +1,16 @@
-package metropolia.myapplication.data.local
+package metropolia.myapplication.data.local.seeders
+
+import metropolia.myapplication.data.local.AlgorithmDao
+import metropolia.myapplication.data.local.AlgorithmEntity
+import metropolia.myapplication.data.local.AlgorithmVariantEntity
+import metropolia.myapplication.data.local.UserEntity
 
 private const val LIBRARY_USER_ID = "local-library"
 
-private val libraryUser = UserEntity(userId = LIBRARY_USER_ID, username = "Cube Library")
+private val libraryUser = UserEntity(
+    userId = LIBRARY_USER_ID,
+    username = "Cube Library"
+)
 
 // PLL cases and sequences from https://jperm.net/algs/pll.
 // Keep IDs stable and append new versions so existing installs receive new cases.
@@ -88,7 +96,7 @@ private val catalogVersions = listOf(
             type = "PLL",
             algorithmText = "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'",
         ),
-        AlgorithmEntity(
+       AlgorithmEntity(
             algorithmId = "Nb-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
@@ -148,10 +156,22 @@ private val catalogVersions = listOf(
 )
 
 private val starterVariants = listOf(
-    AlgorithmVariantEntity("H-perm", "M2 U' M2 U2 M2 U' M2"),
-    AlgorithmVariantEntity("Ua-perm", "R U' R U R U R U' R' U' R2"),
-    AlgorithmVariantEntity("Ub-perm", "R2 U R U R' U' R' U' R' U R'"),
-    AlgorithmVariantEntity("Z-perm", "M2 U2 M U M2 U M2 U M"),
+    AlgorithmVariantEntity(
+        "H-perm",
+        "M2 U' M2 U2 M2 U' M2"
+    ),
+    AlgorithmVariantEntity(
+        "Ua-perm",
+        "R U' R U R U R U' R' U' R2"
+    ),
+    AlgorithmVariantEntity(
+        "Ub-perm",
+        "R2 U R U R' U' R' U' R' U R'"
+    ),
+    AlgorithmVariantEntity(
+        "Z-perm",
+        "M2 U2 M U M2 U M2 U M"
+    ),
 )
 
 internal suspend fun AlgorithmDao.seedStarterAlgorithms() {

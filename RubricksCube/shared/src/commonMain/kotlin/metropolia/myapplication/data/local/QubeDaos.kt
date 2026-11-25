@@ -9,12 +9,28 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-internal interface UserDao {
+internal abstract class UserDao {
     @Upsert
-    suspend fun save(user: UserEntity)
+    abstract suspend fun save(user: UserEntity)
 
     @Query("SELECT * FROM users WHERE userId = :userId")
-    fun observe(userId: String): Flow<UserEntity?>
+    abstract fun observe(userId: String): Flow<UserEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun insertAll(users: List<UserEntity>)
+
+    @Query("SELECT * FROM users ORDER BY username ASC")
+    abstract suspend fun getAll(): List<UserEntity>
+
+    @Query("SELECT * FROM users WHERE username = :username LIMIT 1")
+    abstract suspend fun findByUsername(username: String): UserEntity?
+
+    @Transaction
+    open suspend fun seedUser(user: UserEntity) {
+        if (findByUsername(user.username) == null) {
+            save(user)
+        }
+    }
 }
 
 @Dao
