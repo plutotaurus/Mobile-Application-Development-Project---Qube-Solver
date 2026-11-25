@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -192,9 +193,7 @@ fun ProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val avatarSize = 40.dp + (100.dp * (1f - collapseFraction)) // shrinks from 140dp to 40dp
-                    val usernameSize = (20f + 12f * (1f - collapseFraction)).sp
-                    val fontSp = 20f + (12f * (1f - collapseFraction))
-                    val textSize = fontSp.sp
+                    val usernameSize = (14f + 4f * (1f - collapseFraction)).sp
 
                     Box(
                         modifier = Modifier
@@ -203,18 +202,38 @@ fun ProfileScreen(
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "U",
-                            fontSize = textSize,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                        val avatarSize = 40.dp + (100.dp * (1f - collapseFraction)) // shrinks from 140dp to 40dp
+                        val fontSp = 20f + (12f * (1f - collapseFraction))
+                        val textSize = fontSp.sp
+
+                        Box(
+                            modifier = Modifier
+                                .size(avatarSize)
+                                .clip(CircleShape)
+                                .background(
+                                    if (isLoggedIn) MaterialTheme.colorScheme.primaryContainer
+                                    else MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = if (isLoggedIn && username.isNotBlank()) username.take(1).uppercase() else "?",
+                                fontSize = textSize,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isLoggedIn) MaterialTheme.colorScheme.onPrimaryContainer
+                                else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(Modifier.width(16.dp))
+
                     }
                     Spacer(Modifier.width(16.dp))
                     Text(
-                        text = "Username",
+                        text = if (isLoggedIn) username else "Guest",
                         fontSize = usernameSize,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
