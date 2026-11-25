@@ -1,11 +1,9 @@
 package metropolia.myapplication.Camera
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,11 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
+import metropolia.myapplication.AppScreen
+import metropolia.myapplication.colorPicker.ColorpickerPrototype
 
 @Composable
 fun CameraScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onSidesCaptured: () -> Unit
 ) {
+
+    var capturedSides by remember { mutableStateOf<List<List<Color>>>(emptyList()) }
 
     // Camera screen content
     Column(
@@ -29,8 +32,23 @@ fun CameraScreen(
             .fillMaxSize()
             .padding(20.dp)
     ) {
-        Text("Camera Screen")
-        cubeSideCollecting(Modifier.weight(1f))
+        if (capturedSides.size == 6) {
+            // All sides captured, navigate to the color picker screen
+            ColorpickerPrototype(
+                sides = capturedSides,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            )
+        } else {
+            Text("Camera Screen")
+            CubeSideCollecting(
+                Modifier.weight(1f),
+                onAllSidesCaptured = { sides ->
+                    capturedSides = sides
+                }
+            )
+        }
         Button(
             onClick = onNavigateBack
         ) {

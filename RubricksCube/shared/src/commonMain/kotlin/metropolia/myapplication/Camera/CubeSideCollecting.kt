@@ -20,18 +20,32 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import metropolia.myapplication.data.CubeColor
 import metropolia.myapplication.data.Cubelet
+import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 
 
 @Composable
-fun cubeSideCollecting(modifier: Modifier): List<Cubelet> {
+fun CubeSideCollecting(
+    modifier: Modifier,
+    onAllSidesCaptured: (List<List<Color>>) -> Unit
+) {
 
-    val cubelets by remember { mutableStateOf(mutableListOf<Cubelet>()) }
+    //sides of the cube
+    // in order: white, green, red, yellow, blue, orange
+
+    // each side contains a list of the colors on that side
+    // in the configuration:
+    // 147
+    // 258
+    // 369
+    val sides by remember { mutableStateOf(mutableListOf<List<Color>>()) }
 
     var captureRequested by remember { mutableStateOf(false) }
 
@@ -56,15 +70,22 @@ fun cubeSideCollecting(modifier: Modifier): List<Cubelet> {
                         captureRequested = captureRequested,
                         onCaptureHandled = { captureRequested = false },
                         onPhotoCaptured = { image ->
-                            sideColors = getSideColors(image)
+                            sideColors = matchToCubeColors(getSideColors(image))
+
+                            sides.add(sideColors)
 
                             isWaiting = true
 
                             scope.launch {
                                 delay(1000.milliseconds) // Wait for 1 second before proceeding to the next side
-                                currentSide++
-                                isWaiting = false
-                                sideColors = getNextViewFinderColor(currentSide)
+
+                                if (sides.size == 6) {
+                                    onAllSidesCaptured(sides.toList())
+                                } else {
+                                    currentSide++
+                                    isWaiting = false
+                                    sideColors = getNextViewFinderColor(currentSide)
+                                }
                             }
                         }
                     )
@@ -79,8 +100,6 @@ fun cubeSideCollecting(modifier: Modifier): List<Cubelet> {
                 Text("Take Photo")
             }
         }
-
-    return cubelets
 }
 
 @Composable
@@ -90,22 +109,22 @@ fun BoxScope.CubePhotoInstructions(side: Int) {
         buildAnnotatedString {
             append("Take a photo of the ")
             when (side) {
-            1 -> withStyle(SpanStyle(color = Color.White)) {
+            1 -> withStyle(SpanStyle(color = CubeColor.WHITE.color)) {
                 append("white")
                 }
-            2 -> withStyle(SpanStyle(color = Color.Green)) {
+            2 -> withStyle(SpanStyle(color = CubeColor.GREEN.color)) {
                 append("green")
                 }
-            3 -> withStyle(SpanStyle(color = Color.Red)) {
+            3 -> withStyle(SpanStyle(color = CubeColor.RED.color)) {
                 append("red")
                 }
-            4 -> withStyle(SpanStyle(color = Color.Yellow)) {
+            4 -> withStyle(SpanStyle(color = CubeColor.YELLOW.color)) {
                 append("yellow")
                 }
-            5 -> withStyle(SpanStyle(color = Color.Blue)) {
+            5 -> withStyle(SpanStyle(color = CubeColor.BLUE.color)) {
                 append("blue")
                 }
-            6 -> withStyle(SpanStyle(color = Color(0xFFFF8000))) {
+            6 -> withStyle(SpanStyle(color = CubeColor.ORANGE.color)) {
                 append("orange")
                 }
         }
@@ -113,22 +132,22 @@ fun BoxScope.CubePhotoInstructions(side: Int) {
         append(" face \n with the ")
 
         when (side) {
-            1 -> withStyle(SpanStyle(color = Color.Blue)) {
+            1 -> withStyle(SpanStyle(color = CubeColor.BLUE.color)) {
                 append("blue")
             }
-            2 -> withStyle(SpanStyle(color = Color.White)) {
+            2 -> withStyle(SpanStyle(color = CubeColor.WHITE.color)) {
                 append("white")
             }
-            3 -> withStyle(SpanStyle(color = Color.White)) {
+            3 -> withStyle(SpanStyle(color = CubeColor.WHITE.color)) {
                 append("white")
             }
-            4 -> withStyle(SpanStyle(color = Color.Red)) {
+            4 -> withStyle(SpanStyle(color = CubeColor.RED.color)) {
                 append("red")
             }
-            5 -> withStyle(SpanStyle(color = Color.Red)) {
+            5 -> withStyle(SpanStyle(color = CubeColor.RED.color)) {
                 append("red")
             }
-            6 -> withStyle(SpanStyle(color = Color.Blue)) {
+            6 -> withStyle(SpanStyle(color = CubeColor.BLUE.color)) {
                 append("blue")
             }
         }
@@ -137,7 +156,7 @@ fun BoxScope.CubePhotoInstructions(side: Int) {
     },
         modifier = Modifier
             .align(Alignment.TopCenter)
-            .padding(top = 30.dp),
+            .padding(top = 80.dp),
         fontSize = 20.sp
     )
 }
@@ -153,3 +172,17 @@ fun getNextViewFinderColor(face: Int): List<Color> {
         else -> emptyList()
     }
 }
+
+fun matchToCubeColors(colors: List<Color>): List<Color> {
+
+    return colors.map { color ->
+        val colorCloseness: List<Pair<CubeColor, Float>> = CubeColor.entries.map { cubeColor ->
+            val distance = abs(cubeColor.color.red - color.red) +
+                    abs(cubeColor.color.green - color.green) +
+                    abs(cubeColor.color.blue - color.blue)
+            cubeColor to distance
+        }
+
+        colorCloseness.minBy { it.second }.first.color
+        }
+    }

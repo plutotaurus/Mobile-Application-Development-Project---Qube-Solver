@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import metropolia.myapplication.Camera.CameraScreen
+import metropolia.myapplication.colorPicker.ColorpickerPrototype
 import metropolia.myapplication.profile.ProfileScreen
 import org.jetbrains.compose.resources.StringResource
 import rubrickscube.shared.generated.resources.Res
@@ -21,6 +22,7 @@ import rubrickscube.shared.generated.resources.main_menu
 import rubrickscube.shared.generated.resources.profile
 import rubrickscube.shared.generated.resources.racing
 import rubrickscube.shared.generated.resources.timer
+import rubrickscube.shared.generated.resources.color_picker
 
 enum class AppScreen(val title: StringResource) {
     MainMenu(title = Res.string.main_menu),
@@ -29,7 +31,8 @@ enum class AppScreen(val title: StringResource) {
     Timer(title = Res.string.timer),
     Algorithms(title = Res.string.algorithms),
     Profile(title = Res.string.profile),
-    Badges(title = Res.string.badges)
+    Badges(title = Res.string.badges),
+    ColorPicker(title = Res.string.color_picker)
 }
 
 
@@ -59,7 +62,8 @@ fun QubeApp(
         }
         composable(AppScreen.Camera.name) {
             CameraScreen(
-                onNavigateBack = { navcontroller.popBackStack() }
+                onNavigateBack = { navcontroller.popBackStack() },
+                onSidesCaptured = {navcontroller.navigate(AppScreen.ColorPicker.name, )}
             )
         }
         composable(AppScreen.Algorithms.name){
