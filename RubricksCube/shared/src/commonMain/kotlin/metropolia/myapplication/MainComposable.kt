@@ -10,8 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import metropolia.myapplication.Camera.CameraScreen
-import metropolia.myapplication.colorPicker.ColorpickerPrototype
+import metropolia.myapplication.camera.CameraScreen
 import metropolia.myapplication.profile.ProfileScreen
 import org.jetbrains.compose.resources.StringResource
 import rubrickscube.shared.generated.resources.Res
