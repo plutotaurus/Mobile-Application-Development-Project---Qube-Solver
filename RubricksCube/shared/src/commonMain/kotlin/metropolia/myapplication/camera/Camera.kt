@@ -1,4 +1,4 @@
-package metropolia.myapplication.Camera
+package metropolia.myapplication.camera
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
-import metropolia.myapplication.AppScreen
 import metropolia.myapplication.colorPicker.ColorpickerPrototype
 
 @Composable
