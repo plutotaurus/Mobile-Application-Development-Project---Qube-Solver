@@ -8,7 +8,7 @@ import metropolia.myapplication.data.Cube
 import metropolia.myapplication.data.CubeColor
 import metropolia.myapplication.data.Face
 import metropolia.myapplication.data.local.QubeDatabase
-import metropolia.myapplication.data.local.seedStarterAlgorithms
+import metropolia.myapplication.data.local.seeders.seedStarterAlgorithms
 import metropolia.myapplication.data.parseMoveSequence
 import kotlin.coroutines.CoroutineContext
 

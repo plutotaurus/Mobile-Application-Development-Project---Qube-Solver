@@ -1,10 +1,9 @@
-package metropolia.myapplication.Camera
+package metropolia.myapplication.camera
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -44,6 +43,8 @@ actual fun CameraView(
         }
     }
 
+    val previewView = remember { PreviewView(context) }
+
     LaunchedEffect(lifeCycleOwner, cameraController) {
         cameraController.bindToLifecycle(lifeCycleOwner)
     }
@@ -53,6 +54,7 @@ actual fun CameraView(
             CapturePhoto(
                 context = context,
                 cameraController = cameraController,
+                previewView = previewView,
                 onPhotoCaptured = { bitmap ->
                     onPhotoCaptured(bitmap.asImageBitmap())
                     onCaptureHandled()
@@ -61,8 +63,6 @@ actual fun CameraView(
             )
         }
     }
-
-    val previewView = remember { PreviewView(context) }
 
     AndroidView(
         factory = {
@@ -109,6 +109,7 @@ actual fun CameraPermissionGate(content: @Composable () -> Unit) {
 fun CapturePhoto(
     context: Context,
     cameraController: LifecycleCameraController,
+    previewView: PreviewView,
     onPhotoCaptured: (Bitmap) -> Unit,
     onCaptureFailed: () -> Unit
 ) {
@@ -118,13 +119,12 @@ fun CapturePhoto(
         mainExecutor,
         object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
-                val bitmap = image.toBitmap()
-                onPhotoCaptured(bitmap)
                 image.close()
+                previewView.bitmap?.let(onPhotoCaptured)
+                    ?: onCaptureFailed()
             }
 
             override fun onError(exception: ImageCaptureException) {
-                Log.e("CameraView", "Photo capture failed: ${exception.message}", exception)
                 onCaptureFailed()
             }
         }

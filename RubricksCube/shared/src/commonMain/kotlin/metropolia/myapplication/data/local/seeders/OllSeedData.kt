@@ -1,4 +1,4 @@
-package metropolia.myapplication.data.local
+package metropolia.myapplication.data.local.seeders
 
 // OLL cases follow J Perm's numbering at https://jperm.net/algs/oll.
 internal val ollSeedMoves = listOf(
