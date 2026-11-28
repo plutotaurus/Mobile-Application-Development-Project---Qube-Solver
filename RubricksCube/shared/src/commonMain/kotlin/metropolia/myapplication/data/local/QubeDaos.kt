@@ -1,5 +1,7 @@
 package metropolia.myapplication.data.local
 
+import metropolia.myapplication.AlgorithmStatus
+
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -42,12 +44,41 @@ internal abstract class AlgorithmDao {
     abstract fun observeForUser(userId: String): Flow<List<AlgorithmEntity>>
 
     @Query("""
-        SELECT algorithms.*, algorithm_favourites.algorithmText AS favouriteText
+        SELECT algorithms.*, algorithm_favourites.algorithmText AS favouriteText,
+               COALESCE(algorithm_progress.status, 'Unlearned') AS status
         FROM algorithms
         LEFT JOIN algorithm_favourites USING (algorithmId)
+        LEFT JOIN algorithm_progress ON algorithm_progress.algorithmId = algorithms.algorithmId
+            AND algorithm_progress.profile = :profile
         ORDER BY algorithms.type, algorithms.algorithmId
     """)
-    abstract fun observeAll(): Flow<List<AlgorithmWithFavourite>>
+    abstract fun observeAll(profile: String = ""): Flow<List<AlgorithmWithFavourite>>
+
+    @Query("SELECT status FROM algorithm_progress WHERE profile = :profile AND algorithmId = :id")
+    protected abstract suspend fun readStatus(profile: String, id: String): AlgorithmStatus?
+
+    @Upsert
+    protected abstract suspend fun saveProgress(progress: AlgorithmProgressEntity)
+
+    @Transaction
+    open suspend fun cycleStatus(profile: String, id: String) {
+        val current = readStatus(profile, id) ?: AlgorithmStatus.Unlearned
+        saveProgress(AlgorithmProgressEntity(profile, id, current.next()))
+    }
+
+    @Query("""
+        INSERT OR IGNORE INTO algorithm_progress (profile, algorithmId, status)
+        SELECT :profile, algorithmId, :status FROM algorithms WHERE algorithmId = :id
+    """)
+    protected abstract suspend fun importStatus(profile: String, id: String, status: AlgorithmStatus)
+
+    @Transaction
+    open suspend fun importLegacyProgress(profile: String, statuses: Map<String, AlgorithmStatus>) {
+        if (statuses.isEmpty()) return
+        if (markCatalogImported(HistoryImportEntity("algorithm_progress:$profile")) != -1L) {
+            for ((id, status) in statuses) importStatus(profile, id, status)
+        }
+    }
 
     @Upsert
     abstract suspend fun saveFavourite(favourite: AlgorithmFavouriteEntity)

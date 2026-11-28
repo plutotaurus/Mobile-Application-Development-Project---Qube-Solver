@@ -12,6 +12,23 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
     Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
     folder is the appropriate location.
 
+### Shared Material 3 UI
+
+The shared `App` applies `QubeTheme` to Android and iOS. In a screen, use the
+components from `metropolia.myapplication.ui` for labeled actions and headings.
+
+```kotlin
+QubeScreenTitle("Camera")
+QubeButton("Take Photo", onCapture, enabled = canCapture)
+QubeButton("Back", onBack, style = QubeButtonStyle.Text)
+```
+
+Use `Filled` for a primary action, `Tonal` or `Outlined` for supporting actions,
+and `Text` for low-emphasis actions. Compose Material 3 cards, dialogs and text
+fields inherit the shared theme. Use `MaterialTheme.colorScheme`, `typography`
+and `shapes` for custom elements, and wrap standalone previews in `QubeTheme`.
+Cube stickers use their puzzle colors.
+
 ### Running the apps
 
 Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:

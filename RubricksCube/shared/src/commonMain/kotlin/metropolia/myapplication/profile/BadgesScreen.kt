@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import metropolia.myapplication.ui.QubeTheme
 import rubrickscube.shared.generated.resources.Res
 import rubrickscube.shared.generated.resources.medal_bronze_prize_svgrepo_com
 import rubrickscube.shared.generated.resources.medal_gold_winner_2_svgrepo_com
@@ -62,7 +63,7 @@ fun BadgesScreen(
 @Preview(showBackground = true)
 @Composable
 fun BadgesScreenPreview() {
-    MaterialTheme {
+    QubeTheme {
         BadgesScreen(onNavigateBack = {})
     }
 }

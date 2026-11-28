@@ -2,7 +2,6 @@ package metropolia.myapplication
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -11,12 +10,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import metropolia.myapplication.ui.QubeTheme
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import rubrickscube.shared.generated.resources.Res
+import rubrickscube.shared.generated.resources.medal_bronze_prize_svgrepo_com
 import rubrickscube.shared.generated.resources.medal_gold_winner_2_svgrepo_com
 import rubrickscube.shared.generated.resources.medal_silver_badge_svgrepo_com
-import rubrickscube.shared.generated.resources.medal_bronze_prize_svgrepo_com
 
 @Composable
 fun BadgeCard(
@@ -28,9 +28,9 @@ fun BadgeCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
-        shape = RoundedCornerShape(16.dp)
+        shape = MaterialTheme.shapes.large
     ) {
         Row(
             modifier = Modifier
@@ -45,7 +45,7 @@ fun BadgeCard(
                 contentDescription = badgeName,
                 modifier = Modifier
                     .size(56.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(MaterialTheme.shapes.small)
             )
 
             Column(
@@ -70,7 +70,7 @@ fun BadgeCard(
 @Preview(showBackground = true)
 @Composable
 fun BadgeCardPreview() {
-    MaterialTheme {
+    QubeTheme {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)

@@ -1,5 +1,7 @@
 package metropolia.myapplication.data.local
 
+import metropolia.myapplication.AlgorithmStatus
+
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -85,9 +87,26 @@ internal data class AlgorithmFavouriteEntity(
     val algorithmText: String,
 )
 
+@Entity(
+    tableName = "algorithm_progress",
+    primaryKeys = ["profile", "algorithmId"],
+    foreignKeys = [ForeignKey(
+        entity = AlgorithmEntity::class,
+        parentColumns = ["algorithmId"], childColumns = ["algorithmId"],
+        onDelete = ForeignKey.CASCADE,
+    )],
+    indices = [Index("algorithmId")],
+)
+internal data class AlgorithmProgressEntity(
+    val profile: String,
+    val algorithmId: String,
+    val status: AlgorithmStatus,
+)
+
 internal data class AlgorithmWithFavourite(
     @Embedded val algorithm: AlgorithmEntity,
     val favouriteText: String?,
+    val status: AlgorithmStatus = AlgorithmStatus.Unlearned,
 ) {
     val selectedMoves: String get() = favouriteText ?: algorithm.algorithmText
 }

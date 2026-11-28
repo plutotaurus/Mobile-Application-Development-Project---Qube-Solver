@@ -7,15 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import metropolia.myapplication.renderingCube.CubeRendering
+import metropolia.myapplication.ui.QubeButton
+import metropolia.myapplication.ui.QubeButtonStyle
+import metropolia.myapplication.ui.QubeScreenTitle
 
 
 @Composable
@@ -29,51 +30,11 @@ fun MainNavButtons(
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        item{
-            Button(
-                onClick = {
-                    onNavigateToCamera()
-                }
-            ) {
-                Text("Camera")
-            }
-        }
-        item{
-            Button(
-                onClick = {
-                    onNavigateToTimer()
-                }
-            ){
-                Text("Timer")
-            }
-        }
-        item{
-            Button(
-                onClick = {
-                    onNavigateToProfile()
-                }
-            ){
-                Text("Profile")
-            }
-        }
-        item{
-            Button(
-                onClick = {
-                    onNavigateToAlgorithms()
-                }
-            ){
-                Text("Algorithms")
-            }
-        }
-        item{
-            Button(
-                onClick = {
-                    onNavigateToRacing()
-                }
-            ){
-                Text("Racing")
-            }
-        }
+        item { QubeButton("Camera", onNavigateToCamera, style = QubeButtonStyle.Tonal) }
+        item { QubeButton("Timer", onNavigateToTimer, style = QubeButtonStyle.Tonal) }
+        item { QubeButton("Profile", onNavigateToProfile, style = QubeButtonStyle.Tonal) }
+        item { QubeButton("Algorithms", onNavigateToAlgorithms, style = QubeButtonStyle.Tonal) }
+        item { QubeButton("Racing", onNavigateToRacing, style = QubeButtonStyle.Tonal) }
     }
 }
 
@@ -99,14 +60,11 @@ fun MainMenuScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(
-                    text = "Qube Solver",
-                    style = MaterialTheme.typography.headlineMedium
-                )
+                QubeScreenTitle("Qube Solver")
                 if (username != null) {
                     Text(
                         text = "Hi $username",
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

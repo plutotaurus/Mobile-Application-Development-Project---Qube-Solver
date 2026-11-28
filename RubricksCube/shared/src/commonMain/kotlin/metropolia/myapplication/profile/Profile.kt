@@ -23,10 +23,12 @@ import androidx.compose.ui.unit.sp
 import metropolia.myapplication.Badge
 import metropolia.myapplication.BadgeGrid
 import metropolia.myapplication.BadgeRarity
+import metropolia.myapplication.ui.QubeButton
+import metropolia.myapplication.ui.QubeTheme
 import rubrickscube.shared.generated.resources.Res
+import rubrickscube.shared.generated.resources.medal_bronze_prize_svgrepo_com
 import rubrickscube.shared.generated.resources.medal_gold_winner_2_svgrepo_com
 import rubrickscube.shared.generated.resources.medal_silver_badge_svgrepo_com
-import rubrickscube.shared.generated.resources.medal_bronze_prize_svgrepo_com
 
 @Composable
 fun ProfileScreen(
@@ -98,11 +100,7 @@ fun ProfileScreen(
                             Text("Log Out")
                         }
                     } else {
-                        Button(
-                            onClick = { showLoginDialog = true }
-                        ) {
-                            Text("Log In")
-                        }
+                        QubeButton("Log In", onClick = { showLoginDialog = true })
                     }
                 }
                 Spacer(Modifier.height(16.dp))
@@ -121,8 +119,7 @@ fun ProfileScreen(
             ) { text ->
                 Text(
                     text = text,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp, vertical = 16.dp)
@@ -261,7 +258,7 @@ fun ProfileScreen(
 )
 @Composable
 fun ProfileScreenPreview() {
-    MaterialTheme {
+    QubeTheme {
         ProfileScreen()
     }
 }

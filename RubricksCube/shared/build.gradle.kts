@@ -16,6 +16,7 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Shared"
+            binaryOption("bundleId", "metropolia.myapplication.shared")
             isStatic = true
         }
     }

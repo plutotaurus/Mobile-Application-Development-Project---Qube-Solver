@@ -66,7 +66,8 @@ fun QubeApp(
             )
         }
         composable(AppScreen.Algorithms.name){
-            AlgorithmsScreen (
+            AlgorithmsScreen(
+                profile = if (isLoggedIn) "user:$username" else "guest",
                 onNavigateBack = {navcontroller.popBackStack()}
             )
         }

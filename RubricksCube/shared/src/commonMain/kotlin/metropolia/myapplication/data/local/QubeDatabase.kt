@@ -6,6 +6,7 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
@@ -17,6 +18,7 @@ import androidx.sqlite.execSQL
         AlgorithmEntity::class,
         AlgorithmVariantEntity::class,
         AlgorithmFavouriteEntity::class,
+        AlgorithmProgressEntity::class,
         RaceEntity::class,
         RaceParticipantEntity::class,
         SharedSolveEntity::class,
@@ -25,8 +27,8 @@ import androidx.sqlite.execSQL
         UserBadgeEntity::class,
         HistoryImportEntity::class,
     ],
-    version = 3,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
+    version = 5,
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 4, to = 5)],
 )
 @ConstructedBy(QubeDatabaseConstructor::class)
 internal abstract class QubeDatabase : RoomDatabase() {
@@ -43,8 +45,20 @@ internal expect object QubeDatabaseConstructor : RoomDatabaseConstructor<QubeDat
     override fun initialize(): QubeDatabase
 }
 
+// Version 3 shipped both before and after the nullable passwordHash column was added.
+internal val migration3To4 = object : Migration(3, 4) {
+    override fun migrate(connection: SQLiteConnection) {
+        val hasPasswordHash = connection.prepare(
+            "SELECT 1 FROM pragma_table_info('users') WHERE name = 'passwordHash'"
+        ).use { it.step() }
+        if (!hasPasswordHash) {
+            connection.execSQL("ALTER TABLE users ADD COLUMN passwordHash TEXT")
+        }
+    }
+}
+
 internal fun RoomDatabase.Builder<QubeDatabase>.buildQubeDatabase(): QubeDatabase =
-    setDriver(BundledSQLiteDriver()).build()
+    addMigrations(migration3To4).setDriver(BundledSQLiteDriver()).build()
 
 @Composable
 internal expect fun rememberQubeDatabase(): QubeDatabase

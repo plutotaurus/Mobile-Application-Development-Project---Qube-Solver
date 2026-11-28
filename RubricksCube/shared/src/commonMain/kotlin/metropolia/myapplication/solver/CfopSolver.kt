@@ -16,11 +16,14 @@ import kotlin.coroutines.CoroutineContext
  * Returns a space-separated CFOP solution using the local algorithm library.
  * The white center is turned to the bottom before solving the cross.
  * An already solved cube returns an empty string.
+ *
+ * Keep the suspension points inside withContext. Kotlin/Native 2.4.21 crashes
+ * lowering a state machine on the Room-annotated database receiver.
  */
 internal suspend fun QubeDatabase.solveCfop(
     cube: Cube,
     onF2lPair: (F2lPairStep) -> Unit = {},
-): String {
+): String = withContext(Dispatchers.Default) {
     val dao = algorithms()
     dao.seedStarterAlgorithms()
     val catalog = dao.observeAll().first().map {
@@ -31,7 +34,7 @@ internal suspend fun QubeDatabase.solveCfop(
             favourite = it.favouriteText
         )
     }
-    return withContext(Dispatchers.Default) { solveCfop(cube, catalog, coroutineContext, onF2lPair) }
+    solveCfop(cube, catalog, coroutineContext, onF2lPair)
 }
 
 internal data class LastLayerAlgorithm(

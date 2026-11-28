@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import metropolia.myapplication.colorPicker.ColorpickerPrototype
+import metropolia.myapplication.ui.QubeButton
+import metropolia.myapplication.ui.QubeButtonStyle
+import metropolia.myapplication.ui.QubeScreenTitle
 
 @Composable
 fun CameraScreen(
@@ -40,7 +41,7 @@ fun CameraScreen(
                     .fillMaxWidth()
             )
         } else {
-            Text("Camera Screen")
+            QubeScreenTitle("Camera")
             CubeSideCollecting(
                 Modifier.weight(1f),
                 onAllSidesCaptured = { sides ->
@@ -48,11 +49,7 @@ fun CameraScreen(
                 }
             )
         }
-        Button(
-            onClick = onNavigateBack
-        ) {
-            Text("Back")
-        }
+        QubeButton("Back", onNavigateBack, style = QubeButtonStyle.Text)
     }
 }
 

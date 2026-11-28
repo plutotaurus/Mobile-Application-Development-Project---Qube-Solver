@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -25,7 +26,8 @@ import metropolia.myapplication.data.SequenceMove
 import metropolia.myapplication.data.parseMoveSequence
 import metropolia.myapplication.renderingCube.Camera
 import metropolia.myapplication.renderingCube.renderCube
-import kotlin.time.Duration.Companion.milliseconds
+import metropolia.myapplication.ui.QubeButton
+import metropolia.myapplication.ui.QubeButtonStyle
 
 @Composable
 fun AnimatedCubeRendering(
@@ -59,7 +61,7 @@ fun AnimatedCubeRendering(
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color.White
+            color = MaterialTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier
@@ -71,9 +73,7 @@ fun AnimatedCubeRendering(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    Button(onClick = onClose) {
-                        Text("Back")
-                    }
+                    QubeButton("Back", onClose, style = QubeButtonStyle.Text)
                 }
 
                 Column(
@@ -193,14 +193,15 @@ fun AnimatedCubeRendering(
                     }
                 }
 
-                Row(
+                FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Button(
+                    QubeButton(
+                        label = "Play",
                         onClick = {
-                            if (playbackJob?.isActive == true) return@Button
+                            if (playbackJob?.isActive == true) return@QubeButton
 
-                            val moves = parseMoveSequence(moveSequence) ?: return@Button
+                            val moves = parseMoveSequence(moveSequence) ?: return@QubeButton
 
                             playbackJob = scope.launch {
                                 isPlayingSequence = true
@@ -227,10 +228,10 @@ fun AnimatedCubeRendering(
                             }
                         },
                         enabled = !isPlayingSequence
-                    ) {
-                        Text("Play")
-                    }
-                    Button(
+                    )
+                    QubeButton(
+                        label = "Stop",
+                        style = QubeButtonStyle.Tonal,
                         onClick = {
                             scope.launch {
                                 playbackJob?.cancelAndJoin()
@@ -239,11 +240,11 @@ fun AnimatedCubeRendering(
                             }
                         },
                         enabled = isPlayingSequence
-                    ) {
-                        Text("Stop")
-                    }
+                    )
 
-                    Button(
+                    QubeButton(
+                        label = "Reset cube",
+                        style = QubeButtonStyle.Outlined,
                         onClick = {
                             scope.launch {
                                 animator.reset()
@@ -251,9 +252,7 @@ fun AnimatedCubeRendering(
                             }
                         },
                         enabled = !isPlayingSequence && !animator.isAnimating
-                    ) {
-                        Text("Reset cube")
-                    }
+                    )
                 }
             }
         }

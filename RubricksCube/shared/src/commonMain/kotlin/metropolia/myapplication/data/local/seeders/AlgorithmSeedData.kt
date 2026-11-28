@@ -28,19 +28,19 @@ private val catalogVersions = listOf(
             algorithmId = "Aa-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
-            algorithmText = "x L2 D2 L' U' L D2 L' U L'",
+            algorithmText = "x L2 D2 L' U' L D2 L' U L' x'",
         ),
         AlgorithmEntity(
             algorithmId = "Ab-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
-            algorithmText = "x' L2 D2 L U L' D2 L U' L",
+            algorithmText = "x' L2 D2 L U L' D2 L U' L x",
         ),
         AlgorithmEntity(
             algorithmId = "E-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
-            algorithmText = "x' L' U L D' L' U' L D L' U' L D' L' U L D",
+            algorithmText = "x' L' U L D' L' U' L D L' U' L D' L' U L D x",
         ),
         AlgorithmEntity(
             algorithmId = "F-perm",
@@ -82,7 +82,7 @@ private val catalogVersions = listOf(
             algorithmId = "Ja-perm",
             userId = LIBRARY_USER_ID,
             type = "PLL",
-            algorithmText = "x R2 F R F' R U2 r' U r U2",
+            algorithmText = "x R2 F R F' R U2 r' U r U2 x'",
         ),
         AlgorithmEntity(
             algorithmId = "Jb-perm",

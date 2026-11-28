@@ -5,12 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,12 +17,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
 import metropolia.myapplication.data.local.PasswordHasher
 import metropolia.myapplication.data.local.UserEntity
 import metropolia.myapplication.data.local.rememberQubeDatabase
-import kotlin.uuid.Uuid
+import metropolia.myapplication.ui.QubeButton
+import metropolia.myapplication.ui.QubeButtonStyle
 
 @Composable
 fun LoginDialog(
@@ -50,7 +48,7 @@ fun LoginDialog(
                     Text(
                         text = errorMessage!!,
                         color = MaterialTheme.colorScheme.error,
-                        fontSize = 12.sp
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
 
@@ -82,7 +80,9 @@ fun LoginDialog(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedButton(
+                QubeButton(
+                    label = "Register",
+                    style = QubeButtonStyle.Outlined,
                     onClick = {
                         val nameToUse = usernameInput.ifBlank { "SpeedySam" }
                         scope.launch {
@@ -102,11 +102,10 @@ fun LoginDialog(
                             }
                         }
                     }
-                ) {
-                    Text("Register")
-                }
+                )
 
-                Button(
+                QubeButton(
+                    label = "Log In",
                     onClick = {
                         val nameToUse = usernameInput.ifBlank { "SpeedySam" }
                         scope.launch {
@@ -121,15 +120,11 @@ fun LoginDialog(
                             }
                         }
                     }
-                ) {
-                    Text("Log In")
-                }
+                )
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
+            QubeButton("Cancel", onDismiss, style = QubeButtonStyle.Text)
         }
     )
 }

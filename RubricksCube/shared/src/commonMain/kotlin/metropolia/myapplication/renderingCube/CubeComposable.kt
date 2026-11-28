@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +22,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import metropolia.myapplication.data.Cube
 import metropolia.myapplication.data.Face
+import metropolia.myapplication.ui.QubeButton
+import metropolia.myapplication.ui.QubeButtonStyle
 
 @Composable
 fun CubeRendering() {
@@ -176,16 +176,16 @@ fun CubeRendering() {
                     }
                 )
 
-                Button(
+                QubeButton(
+                    label = "Reset cube",
+                    style = QubeButtonStyle.Outlined,
                     onClick = {
                         cubeState.value = Cube.solved()
                         yawState.floatValue = 0.65f
                         pitchState.floatValue = 0.5708f
                     },
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Reset cube")
-                }
+                )
             }
         }
     }
