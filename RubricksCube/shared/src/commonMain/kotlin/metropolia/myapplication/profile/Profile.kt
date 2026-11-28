@@ -1,5 +1,11 @@
 package metropolia.myapplication.profile
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.Color
+import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.onStart
+import metropolia.myapplication.rememberLegacyProgress
+import metropolia.myapplication.data.local.seeders.seedStarterAlgorithms
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,6 +13,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.key
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.catch
+import metropolia.myapplication.data.local.rememberQubeDatabase
+import metropolia.myapplication.timer.formatSolveTime
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,15 +53,76 @@ fun ProfileScreen(
 ) {
 
     var showLoginDialog by remember { mutableStateOf(false) }
-
+    var editRequested by remember { mutableStateOf(false) }
+    var editAfterLogin by remember { mutableStateOf(false) }
     if (showLoginDialog) {
         LoginDialog(
-            onDismiss = { showLoginDialog = false },
+            onDismiss = {
+                showLoginDialog = false
+                editAfterLogin = false
+            },
             onLogin = { newUsername: String ->
+                editRequested = editAfterLogin
                 onLogin(newUsername)
                 showLoginDialog = false
             }
         )
+    }
+    val database = rememberQubeDatabase()
+    val account = username.takeIf { isLoggedIn }
+    if (editRequested && account != null) {
+        key(account) { EditProfileDialog(database.users(), account) { editRequested = false } }
+    }
+    val progressKey = account?.let { "user:$it" } ?: "guest"
+    val legacyProgress = rememberLegacyProgress(progressKey)
+    val profile by key(database, account) {
+        remember(database, account, legacyProgress) {
+            combine(database.users().observeProfileStats(account, progressKey),
+                database.badges().observeProfileBadges(account)) { stats, badges ->
+                Result.success(stats to badges)
+            }.onStart {
+                database.algorithms().seedStarterAlgorithms()
+                database.algorithms().importLegacyProgress(progressKey, legacyProgress)
+            }.catch { emit(Result.failure(it)) }
+        }.collectAsState(initial = null)
+    }
+    val stats = profile?.getOrNull()?.first
+    val earned = profile?.getOrNull()?.second.orEmpty()
+    val profileBadges = remember(earned) {
+        val catalog = listOf(
+            Badge(
+                "1",
+                "Gold Solver",
+                Res.drawable.medal_gold_winner_2_svgrepo_com,
+                false,
+                BadgeRarity.LEGENDARY
+            ),
+            Badge(
+                "2",
+                "Silver Solver",
+                Res.drawable.medal_silver_badge_svgrepo_com,
+                false,
+                BadgeRarity.RARE
+            ),
+            Badge(
+                "3",
+                "Bronze Solver",
+                Res.drawable.medal_bronze_prize_svgrepo_com,
+                false,
+                BadgeRarity.COMMON
+            ),
+            Badge("4", "Speedster", null, false, BadgeRarity.COMMON),
+            Badge("5", "Master", null, false, BadgeRarity.COMMON),
+            Badge("6", "Expert", null, false, BadgeRarity.COMMON),
+            Badge("7", "Champion", null, false, BadgeRarity.COMMON),
+            Badge("8", "Legend", null, false, BadgeRarity.LEGENDARY)
+        )
+        val unlocked = earned.map { record ->
+            val template = catalog.find { it.name == record.title } ?: catalog.find { it.id == record.badgeId }
+            template?.copy(id = record.badgeId, name = record.title, unlocked = true)
+                ?: Badge(record.badgeId, record.title, null, true, BadgeRarity.COMMON)
+        }
+        unlocked + catalog.filter { badge -> unlocked.none { it.id == badge.id || it.name == badge.name } }
     }
     val lazyListState = rememberLazyListState()
 
@@ -89,6 +162,13 @@ fun ProfileScreen(
                         Text("3×3")
                     }
 
+                    OutlinedButton(onClick = {
+                        if (isLoggedIn) editRequested = true else {
+                            editAfterLogin = true
+                            showLoginDialog = true
+                        }
+                    }) { Text("Edit Profile") }
+
                     if (isLoggedIn) {
                         Button(
                             onClick = onLogout,
@@ -125,6 +205,26 @@ fun ProfileScreen(
                         .padding(horizontal = 24.dp, vertical = 16.dp)
                 )
 
+                if (text == "Learning Progress" && stats != null) {
+                    LearningProgressChart(stats.learning, stats.learned, stats.algorithmCount)
+                } else {
+                    val value = when {
+                        profile == null -> "Loading…"
+                        stats == null -> "Unavailable"
+                        else -> when (text) {
+                            "Solving Method" -> stats.solvingMethod ?: "Not set"
+                            "Best Time" -> stats.bestTime?.let(::formatSolveTime) ?: "No recorded solves"
+                            "Cube Brand" -> stats.cubeBrand ?: "Not set"
+                            "Win Rate" -> if (stats.races == 0) "No ranked races" else
+                                "${stats.wins * 100L / stats.races}% (${stats.wins} of ${stats.races})"
+                            "Amount of Friends" -> stats.friends.toString()
+                            else -> "${earned.size} earned"
+                        }
+                    }
+                    Text(value, modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                        style = MaterialTheme.typography.bodyLarge)
+                }
+
                 if (text == "Badges") {
                     Box(
                         modifier = Modifier
@@ -132,34 +232,7 @@ fun ProfileScreen(
                             .padding(horizontal = 24.dp)
                     ) {
                         BadgeGrid(
-                            badges = listOf(
-                                Badge(
-                                    "1",
-                                    "Gold Solver",
-                                    Res.drawable.medal_gold_winner_2_svgrepo_com,
-                                    true,
-                                    BadgeRarity.LEGENDARY
-                                ),
-                                Badge(
-                                    "2",
-                                    "Silver Solver",
-                                    Res.drawable.medal_silver_badge_svgrepo_com,
-                                    true,
-                                    BadgeRarity.RARE
-                                ),
-                                Badge(
-                                    "3",
-                                    "Bronze Solver",
-                                    Res.drawable.medal_bronze_prize_svgrepo_com,
-                                    true,
-                                    BadgeRarity.COMMON
-                                ),
-                                Badge("4", "Speedster", null, false, BadgeRarity.COMMON),
-                                Badge("5", "Master", null, false, BadgeRarity.COMMON),
-                                Badge("6", "Expert", null, false, BadgeRarity.COMMON),
-                                Badge("7", "Champion", null, false, BadgeRarity.COMMON),
-                                Badge("8", "Legend", null, false, BadgeRarity.LEGENDARY)
-                            ),
+                            badges = profileBadges,
                             onBadgeClick = {},
                             onMoreClick = onNavigateToBadges
                         )
@@ -247,6 +320,41 @@ fun ProfileScreen(
                 onClick = onNavigateBack
             ) {
                 Text("Back")
+            }
+        }
+    }
+}
+
+private data class ProgressSlice(val label: String, val count: Int, val color: Color)
+
+@Composable
+private fun LearningProgressChart(learning: Int, learned: Int, total: Int) {
+    val slices = listOf(
+        ProgressSlice("Learning", learning, Color(0xFFE9B949)),
+        ProgressSlice("Learned", learned, Color(0xFF56A36D)),
+        ProgressSlice("Unlearned", total - learning - learned, Color(0xFF93979D)),
+    )
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (total > 0) {
+            Canvas(Modifier.size(144.dp).align(Alignment.CenterHorizontally)) {
+                var start = -90f
+                for (slice in slices) {
+                    val sweep = 360f * slice.count / total
+                    if (slice.count > 0) drawArc(slice.color, start, sweep, useCenter = true)
+                    start += sweep
+                }
+            }
+        } else {
+            Text("No algorithms yet")
+        }
+        for (slice in slices) {
+            val percent = if (total == 0) 0 else (100.0 * slice.count / total).roundToInt()
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Box(Modifier.size(12.dp).background(slice.color, CircleShape))
+                Text("${slice.label}: ${slice.count} ($percent%)", style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

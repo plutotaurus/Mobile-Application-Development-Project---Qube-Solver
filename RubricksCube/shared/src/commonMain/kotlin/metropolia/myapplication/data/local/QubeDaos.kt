@@ -10,8 +10,45 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
+internal data class ProfileStats(
+    val solvingMethod: String?,
+    val cubeBrand: String?,
+    val bestTime: Long?,
+    val algorithmCount: Int,
+    val learning: Int,
+    val learned: Int,
+    val races: Int,
+    val wins: Int,
+    val friends: Int,
+)
+
 @Dao
 internal abstract class UserDao {
+    @Query("""
+        SELECT u.solvingMethod, u.cubeBrand,
+            (SELECT MIN(timeMs) FROM solve_times
+             WHERE userId IS u.userId AND cubeType = '3x3') AS bestTime,
+            (SELECT COUNT(*) FROM algorithms) AS algorithmCount,
+            (SELECT COUNT(*) FROM algorithm_progress WHERE profile = :profile AND status = 'Learning') AS learning,
+            (SELECT COUNT(*) FROM algorithm_progress WHERE profile = :profile AND status = 'Learned') AS learned,
+            (SELECT COUNT(*) FROM race_participants WHERE userId = u.userId AND position IS NOT NULL) AS races,
+            (SELECT COUNT(*) FROM race_participants WHERE userId = u.userId AND position = 1) AS wins,
+            (SELECT COUNT(*) FROM (
+                SELECT receiverUserId FROM friendships WHERE requesterUserId = u.userId AND LOWER(status) = 'accepted'
+                UNION
+                SELECT requesterUserId FROM friendships WHERE receiverUserId = u.userId AND LOWER(status) = 'accepted'
+            )) AS friends
+        FROM (SELECT 1) LEFT JOIN users u ON u.username = :username
+        WHERE :username IS NULL OR u.userId IS NOT NULL
+    """)
+    abstract fun observeProfileStats(username: String?, profile: String): Flow<ProfileStats?>
+
+    @Query("""
+        UPDATE users SET solvingMethod = :method, cubeBrand = :brand, email = :email
+        WHERE userId = :userId
+    """)
+    abstract suspend fun updateProfile(userId: String, method: String?, brand: String?, email: String?): Int
+
     @Upsert
     abstract suspend fun save(user: UserEntity)
 
@@ -199,6 +236,13 @@ internal abstract class SocialDao {
 
 @Dao
 internal interface BadgeDao {
+    @Query("""
+        SELECT b.* FROM badges b JOIN user_badges ub USING (badgeId)
+        JOIN users u ON u.userId = ub.userId
+        WHERE u.username = :username ORDER BY b.title
+    """)
+    fun observeProfileBadges(username: String?): Flow<List<BadgeEntity>>
+
     @Upsert
     suspend fun save(badge: BadgeEntity)
 
