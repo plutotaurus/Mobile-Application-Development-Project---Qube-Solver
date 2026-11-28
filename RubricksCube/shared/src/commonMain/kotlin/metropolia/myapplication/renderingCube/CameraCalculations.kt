@@ -4,6 +4,8 @@ import androidx.compose.ui.geometry.Offset
 import metropolia.myapplication.data.Cube
 import metropolia.myapplication.data.CubeColor
 import metropolia.myapplication.data.Face
+import metropolia.myapplication.data.Move
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -20,6 +22,7 @@ data class RenderFace(
     val face: Face,
     val color: CubeColor,
     val position: Vector3i,
+    val arrow: List<Offset> = emptyList(),
 )
 
 fun rotate3D(
@@ -69,18 +72,37 @@ fun renderCube(
     camera:Camera,
     width: Float,
     height: Float,
+    move: Move? = null,
+    angleDegrees: Float = 0f,
+    wholeCube: Boolean = false,
 ): List<RenderFace> {
 
     val result = mutableListOf<RenderFace>()
 
+    val radians = angleDegrees * (PI / 180).toFloat()
+    val c = cos(radians)
+    val s = sin(radians)
     for ((position, stickers) in cube.cubelets) {
+
+        val layer = when (move?.axis) {
+            0 -> position.x
+            1 -> position.y
+            else -> position.z
+        }
+        val turning = move != null && (wholeCube || layer == move.layer || (move.wide && layer == 0))
+        val layerMove = if (turning) move else null
+        fun view(point: Vector3): Vector3 {
+            val rotated = if (layerMove == null) point else when (layerMove.axis) {
+                0 -> Vector3(point.x, c * point.y - s * point.z, s * point.y + c * point.z)
+                1 -> Vector3(c * point.x + s * point.z, point.y, -s * point.x + c * point.z)
+                else -> Vector3(c * point.x - s * point.y, s * point.x + c * point.y, point.z)
+            }
+            return rotate3D(rotated, camera)
+        }
 
         for ((face, color) in stickers) {
 
-            val normal = rotate3D(
-                getFaceNormal(face),
-                camera
-            )
+            val normal = view(getFaceNormal(face))
 
             // Ignore faces pointing away from the camera
             if (normal.z <= 0f) continue
@@ -91,7 +113,7 @@ fun renderCube(
             )
 
             val rotated = vertices.map {
-                rotate3D(it, camera)
+                view(it)
             }
 
             val projected = rotated.map {
@@ -108,6 +130,9 @@ fun renderCube(
                     depth = depth,
                     face = face,
                     color = color,
+                    arrow = turnArrowVertices(vertices, face, layerMove).map {
+                        project3D(view(it), width, height)
+                    },
                     position = position
                 )
             )

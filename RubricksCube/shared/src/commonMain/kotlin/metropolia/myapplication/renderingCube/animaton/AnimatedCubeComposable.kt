@@ -16,10 +16,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import kotlin.time.Duration.Companion.milliseconds
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.StrokeCap
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import metropolia.myapplication.data.Cube
 import metropolia.myapplication.data.SequenceMove
@@ -91,10 +91,15 @@ fun AnimatedCubeRendering(
                             animator.cube,
                             camera,
                             size.width,
-                            size.height
+                            size.height,
+                            animator.activeMove,
+                            animator.rotation.value,
+                            animator.wholeCubeTurn,
                         )
 
-                        for ((points, _, _, color) in faces) {
+                        for (face in faces) {
+                            val points = face.points
+                            val color = face.color
                             val path = Path().apply {
                                 moveTo(points[0].x, points[0].y)
 
@@ -112,6 +117,10 @@ fun AnimatedCubeRendering(
                                 Color.Black,
                                 style = Stroke(width = 2f)
                             )
+                            val ink = if (color.color.luminance() > 0.18f) Color.Black else Color.White
+                            face.arrow.zipWithNext { a, b ->
+                                drawLine(ink, a, b, 2.dp.toPx(), cap = StrokeCap.Round)
+                            }
                         }
                     }
 
@@ -160,7 +169,7 @@ fun AnimatedCubeRendering(
                                                             }
 
                                                             is SequenceMove.CubeTurn -> {
-                                                                animator.rotateCube(selectedMove.direction)
+                                                                animator.animateCubeTurn(selectedMove.direction)
                                                             }
                                                         }
                                                     }
@@ -216,8 +225,7 @@ fun AnimatedCubeRendering(
                                             }
 
                                             is SequenceMove.CubeTurn -> {
-                                                animator.rotateCube(sequenceMove.direction)
-                                                delay(500.milliseconds)
+                                                animator.animateCubeTurn(sequenceMove.direction)
                                             }
                                         }
                                     }

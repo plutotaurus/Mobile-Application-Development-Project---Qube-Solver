@@ -25,6 +25,9 @@ class CubeAnimator(
     var isAnimating by mutableStateOf(false)
         private set
 
+    var wholeCubeTurn by mutableStateOf(false)
+        private set
+
     val rotation = Animatable(0f)
 
     fun rotateCube(direction: RotateCube) {
@@ -33,15 +36,20 @@ class CubeAnimator(
         cube = CubeOrientation.rotate(cube, direction)
     }
 
+    suspend fun animateCubeTurn(direction: RotateCube) = animateTurns(listOf(direction.faceTurn), true)
+
     suspend fun performMove(move: Move) {
         performMoves(listOf(move))
     }
 
-    suspend fun performMoves(moves: List<Move>) {
+    suspend fun performMoves(moves: List<Move>) = animateTurns(moves, false)
+
+    private suspend fun animateTurns(moves: List<Move>, wholeCube: Boolean) {
 
         if (isAnimating) return
 
         isAnimating = true
+        wholeCubeTurn = wholeCube
 
         try {
             for (move in moves) {
@@ -63,10 +71,7 @@ class CubeAnimator(
                 )
 
                 // Commit the completed rotation
-                cube = CubeRotation.applyMove(
-                    cube = cube,
-                    move = move
-                )
+                cube = if (wholeCube) CubeRotation.applyWholeCubeTurn(cube, move) else CubeRotation.applyMove(cube, move)
 
                 rotation.snapTo(0f)
                 activeMove = null
@@ -76,6 +81,7 @@ class CubeAnimator(
                     rotation.stop()
                     rotation.snapTo(0f)
                     activeMove = null
+                    wholeCubeTurn = false
                     isAnimating = false
                 }
 
